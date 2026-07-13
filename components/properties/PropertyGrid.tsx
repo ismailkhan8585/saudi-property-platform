@@ -1,147 +1,126 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useState, useTransition } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import PropertyCard from './PropertyCard';
 import { ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { Property } from '@/lib/types';
+import type { PaginatedProperties } from '@/lib/types';
 
 interface Props {
-  initialPurpose?: string;
-  initialCategory?: string;
+  initialData: PaginatedProperties;
 }
 
-export default function PropertyGrid({ initialPurpose, initialCategory }: Props) {
+export default function PropertyGrid({ initialData }: Props) {
+  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [properties, setProperties] = useState<Property[]>([]);
-  const [total,       setTotal]      = useState(0);
-  const [page,        setPage]       = useState(1);
-  const [totalPages,  setTotalPages] = useState(1);
-  const [loading,     setLoading]    = useState(true);
-  const [sort,        setSort]       = useState('newest');
-  const [view,        setView]       = useState<'grid' | 'list'>('grid');
+  const [isPending, startTransition] = useTransition();
+  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const { properties, total, page, totalPages } = initialData;
+  const sortParam = searchParams.get('sort');
+  const sort = sortParam === 'price_asc' || sortParam === 'price_desc' ? sortParam : 'newest';
 
-  useEffect(() => {
-    setPage(1);
-  }, [searchParams]);
-
-  useEffect(() => {
-    const params = new URLSearchParams();
-    const purpose  = searchParams.get('purpose')  ?? initialPurpose ?? '';
-    const category = searchParams.get('category') ?? initialCategory ?? '';
-    const society  = searchParams.get('society')  ?? '';
-    const bedrooms = searchParams.get('bedrooms') ?? '';
-
-    if (purpose)  params.set('purpose', purpose);
-    if (category) params.set('category', category);
-    if (society)  params.set('society', society);
-    if (bedrooms) params.set('bedrooms', bedrooms);
-    params.set('sort', sort);
-    params.set('page', String(page));
-    params.set('limit', '12');
-
-    setLoading(true);
-    fetch(`/api/properties?${params}`)
-      .then(r => r.json())
-      .then(d => {
-        setProperties(d.properties ?? []);
-        setTotal(d.total ?? 0);
-        setTotalPages(d.totalPages ?? 1);
-      })
-      .finally(() => setLoading(false));
-  }, [searchParams, page, sort, initialPurpose, initialCategory]);
-
-  if (loading) {
-    return (
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="bg-gray-200 rounded-2xl h-72 animate-pulse" />
-        ))}
-      </div>
-    );
+  function updateUrl(updates: Record<string, string | number>) {
+    const params = new URLSearchParams(searchParams.toString());
+    for (const [key, value] of Object.entries(updates)) params.set(key, String(value));
+    startTransition(() => router.push(`${pathname}?${params.toString()}`, { scroll: false }));
   }
 
+  function goToPage(nextPage: number) {
+    if (nextPage === page || nextPage < 1 || nextPage > totalPages) return;
+    updateUrl({ page: nextPage });
+  }
+
+  const visiblePageCount = Math.min(totalPages, 5);
+  const firstVisiblePage = Math.max(1, Math.min(page - 2, totalPages - visiblePageCount + 1));
+  const visiblePages = Array.from({ length: visiblePageCount }, (_, index) => firstVisiblePage + index);
+
   return (
-    <div className="flex-1 min-w-0">
-      {/* Sort Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-surface-border">
+    <div className="flex-1 min-w-0" aria-busy={isPending}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 pb-4 border-b border-surface-border">
         <p className="text-sm text-gray-500">
           Showing <span className="font-600 text-navy-700">{properties.length}</span> of{' '}
           <span className="font-600 text-navy-700">{total}</span> properties
         </p>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           <select
+            aria-label="Sort properties"
             value={sort}
-            onChange={e => setSort(e.target.value)}
-            className="border border-surface-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500"
+            disabled={isPending}
+            onChange={event => updateUrl({ sort: event.target.value, page: 1 })}
+            className="min-w-0 flex-1 sm:flex-none border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 disabled:opacity-60"
           >
             <option value="newest">Newest First</option>
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
           </select>
           <div className="flex gap-1 border border-surface-border rounded-lg overflow-hidden">
-            <button onClick={() => setView('grid')} className={cn('p-2', view === 'grid' ? 'bg-navy-500 text-white' : 'text-gray-500 hover:bg-gray-100')}>
+            <button aria-label="Grid view" onClick={() => setView('grid')} className={cn('p-2', view === 'grid' ? 'bg-navy-500 text-white' : 'text-gray-500 hover:bg-gray-100')}>
               <LayoutGrid className="w-4 h-4" />
             </button>
-            <button onClick={() => setView('list')} className={cn('p-2', view === 'list' ? 'bg-navy-500 text-white' : 'text-gray-500 hover:bg-gray-100')}>
+            <button aria-label="List view" onClick={() => setView('list')} className={cn('p-2', view === 'list' ? 'bg-navy-500 text-white' : 'text-gray-500 hover:bg-gray-100')}>
               <List className="w-4 h-4" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Grid */}
-      {properties.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-gray-400 text-lg mb-2">No properties found</p>
-          <p className="text-gray-400 text-sm">Try adjusting your filters or WhatsApp us — we may have unlisted properties!</p>
-        </div>
-      ) : (
-        <div className={cn(
-          'grid gap-5',
-          view === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1'
-        )}>
-          {properties.map(p => <PropertyCard key={p.id} property={p} />)}
-        </div>
-      )}
+      <div className={cn('transition-opacity duration-200', isPending && 'opacity-60')}>
+        {properties.length === 0 ? (
+          <div className="text-center py-14 sm:py-20 px-2">
+            <p className="text-gray-400 text-lg mb-2">No properties found</p>
+            <p className="text-gray-400 text-sm">Try adjusting your filters or WhatsApp us â€” we may have unlisted properties!</p>
+          </div>
+        ) : (
+          <div className={cn(
+            'grid gap-5',
+            view === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1',
+          )}>
+            {properties.map((property, index) => (
+              <PropertyCard key={property.id} property={property} priority={index < 2} />
+            ))}
+          </div>
+        )}
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-2 mt-10">
-          <button
-            disabled={page <= 1}
-            onClick={() => setPage(p => p - 1)}
-            className="p-2 border border-surface-border rounded-lg disabled:opacity-40 hover:bg-gray-50"
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </button>
-          {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
-            const pg = i + 1;
-            return (
+        {totalPages > 1 && (
+          <nav aria-label="Property pagination" className="flex flex-wrap justify-center gap-2 mt-8 sm:mt-10">
+            <button
+              aria-label="Previous page"
+              disabled={page <= 1 || isPending}
+              onClick={() => goToPage(page - 1)}
+              className="p-2 border border-surface-border rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            {visiblePages.map(pageNumber => (
               <button
-                key={pg}
-                onClick={() => setPage(pg)}
+                key={pageNumber}
+                aria-label={`Page ${pageNumber}`}
+                aria-current={page === pageNumber ? 'page' : undefined}
+                disabled={isPending}
+                onClick={() => goToPage(pageNumber)}
                 className={cn(
-                  'w-9 h-9 rounded-lg text-sm font-600 border transition-colors',
-                  page === pg
+                  'w-9 h-9 rounded-lg text-sm font-600 border transition-colors disabled:opacity-60',
+                  page === pageNumber
                     ? 'bg-navy-500 text-white border-navy-500'
-                    : 'border-surface-border hover:bg-gray-50'
+                    : 'border-surface-border hover:bg-gray-50',
                 )}
               >
-                {pg}
+                {pageNumber}
               </button>
-            );
-          })}
-          <button
-            disabled={page >= totalPages}
-            onClick={() => setPage(p => p + 1)}
-            className="p-2 border border-surface-border rounded-lg disabled:opacity-40 hover:bg-gray-50"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+            ))}
+            <button
+              aria-label="Next page"
+              disabled={page >= totalPages || isPending}
+              onClick={() => goToPage(page + 1)}
+              className="p-2 border border-surface-border rounded-lg disabled:opacity-40 hover:bg-gray-50"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </nav>
+        )}
+      </div>
     </div>
   );
 }

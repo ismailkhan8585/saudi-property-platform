@@ -1,3 +1,4 @@
+// Cached SSR keeps deployments independent from database availability at build time.
 export const dynamic = 'force-dynamic';
 import { Suspense } from 'react';
 import Navbar from '@/components/layout/Navbar';

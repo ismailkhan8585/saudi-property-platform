@@ -1,0 +1,26 @@
+import PropertyGrid from '@/components/properties/PropertyGrid';
+import { getPublicProperties } from '@/lib/data/public';
+import { parsePublicPropertyQuery, serializePublicPropertyQuery, type PageSearchParams } from '@/lib/property-query';
+import type { PropertyCategory, Purpose } from '@prisma/client';
+
+interface Props {
+  searchParams?: PageSearchParams;
+  initialPurpose?: Purpose;
+  initialCategory?: PropertyCategory;
+}
+
+export default async function PropertyResults({ searchParams = {}, initialPurpose, initialCategory }: Props) {
+  const query = parsePublicPropertyQuery(searchParams, {
+    purpose: initialPurpose,
+    category: initialCategory,
+  });
+  const queryString = serializePublicPropertyQuery(query);
+  const initialData = await getPublicProperties(query);
+
+  return (
+    <PropertyGrid
+      key={queryString}
+      initialData={initialData}
+    />
+  );
+}

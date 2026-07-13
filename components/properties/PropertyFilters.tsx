@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
 import { LAHORE_SOCIETIES, PROPERTY_CATEGORIES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { canonicalizeSociety } from '@/lib/societies';
 
 interface FiltersProps {
   initialPurpose?: string;
@@ -16,11 +17,30 @@ export default function PropertyFilters({ initialPurpose, initialCategory }: Fil
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
 
-  const [purpose,  setPurpose]  = useState(searchParams.get('purpose')  ?? initialPurpose ?? '');
-  const [category, setCategory] = useState(searchParams.get('category') ?? initialCategory ?? '');
-  const [society,  setSociety]  = useState(searchParams.get('society')  ?? '');
+  const normalizePurpose = (value?: string | null) => {
+    const normalized = value?.toUpperCase();
+    return normalized === 'SALE' || normalized === 'RENT' ? normalized : '';
+  };
+  const normalizeCategory = (value?: string | null) => {
+    const normalized = value?.toUpperCase();
+    return PROPERTY_CATEGORIES.some(category => category.value === normalized) ? normalized ?? '' : '';
+  };
+  const [purpose,  setPurpose]  = useState(normalizePurpose(searchParams.get('purpose') ?? initialPurpose));
+  const [category, setCategory] = useState(normalizeCategory(searchParams.get('category') ?? initialCategory));
+  const [society,  setSociety]  = useState(canonicalizeSociety(searchParams.get('society')) ?? '');
   const [bedrooms, setBedrooms] = useState(searchParams.get('bedrooms') ?? '');
   const [search,   setSearch]   = useState(searchParams.get('q')        ?? '');
+
+  const queryKey = searchParams.toString();
+  useEffect(() => {
+    setPurpose(normalizePurpose(searchParams.get('purpose') ?? initialPurpose));
+    setCategory(normalizeCategory(searchParams.get('category') ?? initialCategory));
+    setSociety(canonicalizeSociety(searchParams.get('society')) ?? '');
+    setBedrooms(searchParams.get('bedrooms') ?? '');
+    setSearch(searchParams.get('q') ?? '');
+  // queryKey is the stable URL representation used to synchronize browser back/forward state.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queryKey, initialPurpose, initialCategory]);
 
   function apply() {
     const params = new URLSearchParams();
@@ -95,11 +115,12 @@ export default function PropertyFilters({ initialPurpose, initialCategory }: Fil
       <div>
         <label className="text-sm font-600 text-navy-700 block mb-2">Society / Area</label>
         <select
+          aria-label="All Areas / Societies"
           value={society}
           onChange={e => setSociety(e.target.value)}
           className="w-full border border-surface-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500"
         >
-          <option value="">All Areas</option>
+          <option value="">All Areas / Societies</option>
           {LAHORE_SOCIETIES.map(s => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
@@ -153,10 +174,10 @@ export default function PropertyFilters({ initialPurpose, initialCategory }: Fil
       </aside>
 
       {/* Mobile filter toggle */}
-      <div className="lg:hidden mb-4">
+      <div className="lg:hidden mb-1 w-full">
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center gap-2 bg-navy-500 text-white px-4 py-2.5 rounded-xl text-sm font-600"
+          className="w-full sm:w-auto flex items-center justify-center gap-2 bg-navy-500 text-white px-4 py-3 rounded-xl text-sm font-600"
         >
           <SlidersHorizontal className="w-4 h-4" />
           Filter Properties
@@ -164,7 +185,7 @@ export default function PropertyFilters({ initialPurpose, initialCategory }: Fil
 
         {open && (
           <div className="fixed inset-0 z-50 bg-black/50" onClick={() => setOpen(false)}>
-            <div className="absolute right-0 top-0 bottom-0 w-80 bg-white p-5 overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="absolute right-0 top-0 bottom-0 w-full max-w-sm bg-white p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] overflow-y-auto shadow-2xl" onClick={e => e.stopPropagation()}>
               <div className="flex justify-between mb-5">
                 <h3 className="font-heading font-700 text-navy-700 text-base">Filters</h3>
                 <button onClick={() => setOpen(false)}><X className="w-5 h-5 text-gray-500" /></button>

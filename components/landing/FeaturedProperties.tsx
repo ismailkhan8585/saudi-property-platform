@@ -1,21 +1,11 @@
-export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import PropertyCard from '@/components/properties/PropertyCard';
-import { getServiceClient } from '@/lib/supabase';
-import { mapProperty } from '@/lib/mappers';
+import { getHomePageData } from '@/lib/data/public';
 import type { Property } from '@/lib/types';
 
 async function getFeaturedProperties(): Promise<Property[]> {
-  const supabase = getServiceClient();
-  const { data } = await supabase
-    .from('properties')
-    .select('*')
-    .eq('is_active', true)
-    .eq('featured', true)
-    .order('created_at', { ascending: false })
-    .limit(6);
-  return (data ?? []).map(mapProperty);
+  return (await getHomePageData()).featured;
 }
 
 interface SectionProps {

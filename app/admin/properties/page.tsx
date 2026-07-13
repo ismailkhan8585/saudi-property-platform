@@ -1,42 +1,35 @@
 export const dynamic = 'force-dynamic';
 import Link from 'next/link';
-import { getServiceClient } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { Plus, Edit, Eye } from 'lucide-react';
 import { formatPKR, formatRent } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 
 async function getProperties() {
-  const { data } = await getServiceClient()
-    .from('properties')
-    .select('*')
-    .order('created_at', { ascending: false })
-    .limit(50);
-  return data ?? [];
+  return prisma.properties.findMany({ orderBy: { created_at: 'desc' }, take: 50 });
 }
 
 async function getUnreadCount() {
-  const { count } = await getServiceClient()
-    .from('leads').select('*', { count: 'exact', head: true }).eq('is_read', false);
-  return count ?? 0;
+  return prisma.leads.count({ where: { is_read: false } });
 }
 
 export default async function AdminPropertiesPage() {
   const [properties, unreadLeads] = await Promise.all([getProperties(), getUnreadCount()]);
 
   return (
-    <div className="flex min-h-screen bg-surface-secondary">
+    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary">
       <AdminSidebar unreadLeads={unreadLeads} />
-      <div className="flex-1 p-6 md:p-8 overflow-y-auto">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
-              <h1 className="font-heading font-800 text-navy-700 text-2xl">Properties</h1>
+              <h1 className="font-heading font-800 text-navy-700 text-xl sm:text-2xl">Properties</h1>
               <p className="text-gray-500 text-sm mt-1">{properties.length} total listings</p>
             </div>
             <Link
               href="/admin/properties/new"
-              className="flex items-center gap-2 bg-navy-500 hover:bg-navy-600 text-white px-5 py-2.5 rounded-xl text-sm font-700 transition-colors"
+              className="flex items-center justify-center gap-2 bg-navy-500 hover:bg-navy-600 text-white px-5 py-3 sm:py-2.5 rounded-xl text-sm font-700 transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Property
@@ -51,7 +44,7 @@ export default async function AdminPropertiesPage() {
                   : formatPKR(Number(p.price));
 
                 return (
-                  <div key={p.id} className="px-5 py-4 flex items-center gap-4">
+                  <div key={p.id} className="px-4 sm:px-5 py-4 flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-1">
                         <span className={cn(
@@ -67,7 +60,7 @@ export default async function AdminPropertiesPage() {
                       <div className="font-600 text-navy-700 text-sm truncate">{p.title}</div>
                       <div className="text-gray-500 text-xs mt-0.5">{[p.society, p.area].filter(Boolean).join(', ')}</div>
                     </div>
-                    <div className="font-price text-navy-600 text-sm font-700 shrink-0">{priceDisplay}</div>
+                    <div className="order-3 sm:order-none basis-full sm:basis-auto font-price text-navy-600 text-sm font-700 sm:shrink-0">{priceDisplay}</div>
                     <div className="flex gap-2 shrink-0">
                       <Link
                         href={`/properties/${p.slug}`}

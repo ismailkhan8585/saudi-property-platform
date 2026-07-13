@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getServiceClient } from '@/lib/supabase';
+import { getHomePageData } from '@/lib/data/public';
 
 const FEATURED_SOCIETIES = [
   'DHA Lahore',
@@ -16,23 +16,8 @@ const FEATURED_SOCIETIES = [
   'Wapda Town',
 ];
 
-async function getSocietyCounts() {
-  const { data } = await getServiceClient()
-    .from('properties')
-    .select('society')
-    .eq('is_active', true);
-
-  const counts: Record<string, number> = {};
-  for (const row of data ?? []) {
-    if (row.society) {
-      counts[row.society] = (counts[row.society] ?? 0) + 1;
-    }
-  }
-  return counts;
-}
-
 export default async function BrowseBySociety() {
-  const counts = await getSocietyCounts();
+  const counts = (await getHomePageData()).societyCounts;
 
   return (
     <section className="section-padding bg-navy-700">

@@ -1,4 +1,4 @@
-import type { Property } from './types';
+import type { Property, SiteSettings } from './types';
 
 export function mapProperty(row: Record<string, unknown>): Property {
   return {
@@ -43,7 +43,31 @@ export function mapProperty(row: Record<string, unknown>): Property {
     featured:       Boolean(row.featured),
     isActive:       Boolean(row.is_active),
     views:          Number(row.views ?? 0),
-    createdAt:      row.created_at as string,
-    updatedAt:      row.updated_at as string,
+    createdAt:      row.created_at instanceof Date ? row.created_at.toISOString() : String(row.created_at ?? ''),
+    updatedAt:      row.updated_at instanceof Date ? row.updated_at.toISOString() : String(row.updated_at ?? ''),
+  };
+}
+
+export function mapSiteSettings(row: Record<string, unknown>): SiteSettings {
+  return {
+    id: row.id as string,
+    agentNameEn: row.agent_name_en as string,
+    agentNameUr: row.agent_name_ur as string | null,
+    taglineEn: row.tagline_en as string | null,
+    taglineUr: row.tagline_ur as string | null,
+    phone: row.phone as string,
+    whatsapp: row.whatsapp as string,
+    email: row.email as string | null,
+    officeAddress: row.office_address_en as string | null,
+    officeAddressUr: row.office_address_ur as string | null,
+    facebookUrl: row.facebook_url as string | null,
+    instagramUrl: row.instagram_url as string | null,
+    youtubeUrl: row.youtube_url as string | null,
+    yearsExperience: Number(row.years_experience ?? 0),
+    dealsClosed: Number(row.deals_closed ?? 0),
+    happyClients: Number(row.happy_clients ?? 0),
+    agentPhoto: row.agent_photo as string | null,
+    agentBioEn: row.agent_bio_en as string | null,
+    agentBioUr: row.agent_bio_ur as string | null,
   };
 }

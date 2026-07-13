@@ -101,7 +101,7 @@ export default function PropertyForm({ property }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Section 1: Basic Info */}
-      <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
         <h2 className="font-heading font-700 text-navy-700 text-base">Basic Information</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -142,7 +142,7 @@ export default function PropertyForm({ property }: Props) {
       </div>
 
       {/* Section 2: Location */}
-      <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
         <h2 className="font-heading font-700 text-navy-700 text-base">Location</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -164,9 +164,9 @@ export default function PropertyForm({ property }: Props) {
       </div>
 
       {/* Section 3: Details */}
-      <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
         <h2 className="font-heading font-700 text-navy-700 text-base">Property Details</h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 gap-4">
           <div>
             <label className={labelCls}>Size *</label>
             <input className={inputCls} type="number" value={form.size} onChange={e => set('size', e.target.value)} placeholder="5" required />
@@ -212,7 +212,7 @@ export default function PropertyForm({ property }: Props) {
       </div>
 
       {/* Section 4: Price */}
-      <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-4">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
         <h2 className="font-heading font-700 text-navy-700 text-base">Pricing</h2>
         <div className="flex gap-3 mb-4">
           {(['FIXED', 'ON_REQUEST'] as const).map(pt => (
@@ -243,9 +243,9 @@ export default function PropertyForm({ property }: Props) {
       </div>
 
       {/* Section 5: Amenities */}
-      <div className="bg-white rounded-2xl p-6 border border-surface-border">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border">
         <h2 className="font-heading font-700 text-navy-700 text-base mb-4">Features & Amenities</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {checkboxes.map(({ key, label }) => (
             <label key={key} className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" checked={(form as any)[key]} onChange={() => toggle(key)} className="w-4 h-4 rounded accent-navy-500" />
@@ -256,7 +256,7 @@ export default function PropertyForm({ property }: Props) {
       </div>
 
       {/* Section 6: Photos */}
-      <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-3">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-3">
         <h2 className="font-heading font-700 text-navy-700 text-base">Photo URLs</h2>
         <p className="text-gray-400 text-xs">Enter photo URLs (one per line) — Cloudinary or Pexels URLs</p>
         <textarea
@@ -268,9 +268,9 @@ export default function PropertyForm({ property }: Props) {
       </div>
 
       {/* Section 7: Settings */}
-      <div className="bg-white rounded-2xl p-6 border border-surface-border">
+      <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border">
         <h2 className="font-heading font-700 text-navy-700 text-base mb-4">Settings</h2>
-        <div className="flex gap-6">
+        <div className="flex flex-col min-[360px]:flex-row gap-3 sm:gap-6">
           {[
             { key: 'featured', label: 'Featured' },
             { key: 'isActive', label: 'Active / Visible' },
@@ -284,10 +284,10 @@ export default function PropertyForm({ property }: Props) {
       </div>
 
       {/* Submit */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-1 min-[360px]:grid-cols-2 md:flex gap-3">
         <button
           type="submit" disabled={loading}
-          className="flex-1 md:flex-none md:w-48 bg-navy-500 hover:bg-navy-600 disabled:opacity-50 text-white py-3 rounded-xl font-700 transition-colors"
+          className="w-full md:w-48 bg-navy-500 hover:bg-navy-600 disabled:opacity-50 text-white py-3 rounded-xl font-700 transition-colors"
         >
           {loading ? 'Saving...' : isEdit ? 'Update Property' : 'Create Property'}
         </button>

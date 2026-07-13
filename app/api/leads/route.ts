@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServiceClient } from '@/lib/supabase';
+import { randomUUID } from 'crypto';
+import { prisma } from '@/lib/prisma';
+import type { LeadType } from '@prisma/client';
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,18 +12,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const supabase = getServiceClient();
-    const { error } = await supabase.from('leads').insert({
-      type,
+    await prisma.leads.create({ data: {
+      id: randomUUID(),
+      type: type as LeadType,
       name: name.trim(),
       phone: phone.trim(),
       message: message?.trim() || null,
       property_id: propertyId || null,
-      preferred_date: preferredDate || null,
+      preferred_date: preferredDate ? new Date(`${preferredDate}T00:00:00.000Z`) : null,
       preferred_time: preferredTime || null,
-    });
-
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    } });
 
     return NextResponse.json({ success: true });
   } catch {
@@ -30,26 +30,31 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const supabase = getServiceClient();
   const { searchParams } = req.nextUrl;
   const isRead = searchParams.get('isRead');
   const type   = searchParams.get('type');
   const page   = parseInt(searchParams.get('page') ?? '1', 10);
   const limit  = parseInt(searchParams.get('limit') ?? '20', 10);
 
-  let query = supabase
-    .from('leads')
-    .select(`*, property:property_id(id, title, property_id, slug)`, { count: 'exact' })
-    .order('created_at', { ascending: false });
-
-  if (isRead === 'false') query = query.eq('is_read', false);
-  if (type) query = query.eq('type', type);
-
   const from = (page - 1) * limit;
-  query = query.range(from, from + limit - 1);
-
-  const { data, error, count } = await query;
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-  return NextResponse.json({ leads: data ?? [], total: count ?? 0, page, totalPages: Math.ceil((count ?? 0) / limit) });
+  const where = {
+    ...(isRead === 'false' ? { is_read: false } : {}),
+    ...(type ? { type: type as LeadType } : {}),
+  };
+  try {
+    const [data, count] = await Promise.all([
+      prisma.leads.findMany({
+        where,
+        include: { properties: { select: { id: true, title: true, property_id: true, slug: true } } },
+        orderBy: { created_at: 'desc' },
+        skip: from,
+        take: limit,
+      }),
+      prisma.leads.count({ where }),
+    ]);
+    const leads = data.map(({ properties, ...lead }) => ({ ...lead, property: properties }));
+    return NextResponse.json({ leads, total: count, page, totalPages: Math.ceil(count / limit) });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
+  }
 }

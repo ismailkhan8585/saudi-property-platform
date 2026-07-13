@@ -7,15 +7,17 @@ import { cn } from '@/lib/utils';
 import { formatPKR, formatRent } from '@/lib/currency';
 import { WHATSAPP_URL, WHATSAPP_PROPERTY_MSG, CALL_URL } from '@/lib/constants';
 import type { Property } from '@/lib/types';
+import { memo } from 'react';
 
 interface PropertyCardProps {
   property: Property;
   className?: string;
+  priority?: boolean;
 }
 
 const PLACEHOLDER = 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800';
 
-export default function PropertyCard({ property, className }: PropertyCardProps) {
+function PropertyCard({ property, className, priority = false }: PropertyCardProps) {
   const {
     slug, title, purpose, priceType, price, rentPrice,
     category, society, area, city, bedrooms, bathrooms, size, sizeUnit,
@@ -48,12 +50,13 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          priority={priority}
         />
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
+        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 right-2 sm:right-auto flex gap-1.5 sm:gap-2 flex-wrap">
           <span className={cn(
-            'px-2.5 py-1 rounded-md text-xs font-700 tracking-wide uppercase',
+            'px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-700 tracking-wide uppercase',
             purpose === 'SALE'
               ? 'bg-navy-500 text-white'
               : 'bg-green-600 text-white'
@@ -61,20 +64,20 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
             {purpose === 'SALE' ? 'For Sale' : 'For Rent'}
           </span>
           {isCorner && (
-            <span className="bg-amber-500 text-white px-2.5 py-1 rounded-md text-xs font-700 uppercase">
+            <span className="bg-amber-500 text-white px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-700 uppercase">
               Corner
             </span>
           )}
           {isSold && (
-            <span className="bg-error text-white px-2.5 py-1 rounded-md text-xs font-700 uppercase">
+            <span className="bg-error text-white px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-700 uppercase">
               {status}
             </span>
           )}
         </div>
 
         {featured && (
-          <div className="absolute top-3 right-3">
-            <span className="bg-gold-500 text-white px-2.5 py-1 rounded-md text-xs font-700 uppercase">
+          <div className="absolute bottom-2 sm:bottom-auto sm:top-3 left-2 sm:left-auto sm:right-3">
+            <span className="bg-gold-500 text-white px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-xs font-700 uppercase">
               Featured
             </span>
           </div>
@@ -89,7 +92,7 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className="p-4 sm:p-5">
         {/* Price */}
         <div className="mb-2">
           {priceType === 'ON_REQUEST' ? (
@@ -118,7 +121,7 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
 
         {/* Specs */}
         {(bedrooms || bathrooms || size) && (
-          <div className="flex items-center gap-3 text-sm text-gray-600 font-price mb-4 pb-4 border-b border-surface-border">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs sm:text-sm text-gray-600 font-price mb-4 pb-4 border-b border-surface-border">
             {bedrooms && (
               <span className="flex items-center gap-1">
                 <Bed className="w-3.5 h-3.5 text-navy-400" />
@@ -141,26 +144,26 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:items-center gap-2">
           <a
             href={`${WHATSAPP_URL}?text=${encodeURIComponent(waMsg)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+            className="flex items-center justify-center gap-1.5 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-medium transition-colors"
           >
             <MessageCircle className="w-3.5 h-3.5" />
             WhatsApp
           </a>
           <a
             href={CALL_URL}
-            className="flex items-center gap-1.5 bg-navy-50 hover:bg-navy-100 text-navy-700 px-3 py-2 rounded-lg text-xs font-medium transition-colors"
+            className="flex items-center justify-center gap-1.5 bg-navy-50 hover:bg-navy-100 text-navy-700 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-medium transition-colors"
           >
             <Phone className="w-3.5 h-3.5" />
             Call
           </a>
           <Link
             href={`/properties/${slug}`}
-            className="ml-auto flex items-center gap-1 text-gold-600 hover:text-gold-700 text-xs font-medium transition-colors"
+            className="col-span-2 sm:col-span-1 sm:ml-auto flex items-center justify-center gap-1 py-2 sm:py-0 text-gold-600 hover:text-gold-700 text-xs font-medium transition-colors"
           >
             View Details →
           </Link>
@@ -169,3 +172,5 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
     </div>
   );
 }
+
+export default memo(PropertyCard);

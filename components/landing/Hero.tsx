@@ -1,7 +1,9 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Search, ChevronDown } from 'lucide-react';
 import { LAHORE_SOCIETIES, PROPERTY_CATEGORIES, STATS, AGENT_NAME_EN } from '@/lib/constants';
 import { cn } from '@/lib/utils';
@@ -22,42 +24,47 @@ export default function Hero() {
   }
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 z-0">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.pexels.com/photos/1797428/pexels-photo-1797428.jpeg?auto=compress&cs=tinysrgb&w=1920')" }}
+        <Image
+          src="https://images.pexels.com/photos/1797428/pexels-photo-1797428.jpeg?auto=compress&cs=tinysrgb&w=1920"
+          alt="Lahore skyline and modern property"
+          fill
+          priority
+          quality={80}
+          sizes="100vw"
+          className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-navy-900/75" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 rounded-full opacity-20"
+        <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-96 sm:h-96 rounded-full opacity-20"
           style={{ background: 'radial-gradient(circle, rgb(201 168 76) 0%, transparent 70%)' }} />
       </div>
 
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 pt-24 pb-16">
+      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 pt-20 sm:pt-24 pb-10 sm:pb-16">
         {/* Floating badge */}
-        <div className="flex justify-center mb-6">
-          <span className="inline-flex items-center gap-2 bg-gold-500/20 border border-gold-400/40 text-gold-300 text-sm px-4 py-2 rounded-full backdrop-blur-sm">
+        <div className="flex justify-center mb-4 sm:mb-6">
+          <span className="inline-flex items-center gap-2 bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-full backdrop-blur-sm text-center">
             🏙️ Lahore's Trusted Property Dealer
           </span>
         </div>
 
         {/* Heading */}
         <div className="text-center mb-4">
-          <h1 className="font-heading font-800 text-white text-4xl md:text-6xl lg:text-7xl leading-tight mb-4">
+          <h1 className="font-heading font-800 text-white text-3xl sm:text-4xl md:text-6xl lg:text-7xl leading-[1.12] mb-4 text-balance">
             Find Your Perfect
             <span className="text-gold-400 block">Property in Lahore</span>
           </h1>
-          <p className="font-urdu text-gold-200 text-xl md:text-2xl mb-4 text-right sm:text-center">
+          <p className="font-urdu text-gold-200 text-lg sm:text-xl md:text-2xl mb-4 text-center">
             لاہور میں اپنا بہترین گھر تلاش کریں
           </p>
-          <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto">
+          <p className="text-white/70 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
             Houses, Plots, Apartments & Commercial Properties for Sale and Rent across all major Lahore societies
           </p>
         </div>
 
         {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mt-10 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-2">
+        <form onSubmit={handleSearch} className="mt-6 sm:mt-10 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-2">
           {/* Purpose Toggle */}
           <div className="flex gap-1 p-1 bg-surface-secondary rounded-xl mb-2">
             {(['SALE', 'RENT'] as const).map((p) => (
@@ -120,16 +127,16 @@ export default function Hero() {
         </form>
 
         {/* Trust Stats */}
-        <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="mt-6 sm:mt-10 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
           {[
             { value: `${STATS.propertiesListed}+`, label: 'Properties Listed' },
             { value: `${STATS.dealsClosed}+`,      label: 'Deals Closed' },
             { value: `${STATS.happyClients}+`,     label: 'Happy Clients' },
             { value: `${STATS.yearsExperience}+`,  label: 'Years Experience' },
           ].map(({ value, label }) => (
-            <div key={label} className="text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-4 px-3">
-              <div className="font-price font-700 text-gold-300 text-2xl md:text-3xl">{value}</div>
-              <div className="text-white/70 text-xs md:text-sm mt-1">{label}</div>
+            <div key={label} className="text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 sm:py-4 px-2 sm:px-3">
+              <div className="font-price font-700 text-gold-300 text-xl sm:text-2xl md:text-3xl">{value}</div>
+              <div className="text-white/70 text-[11px] sm:text-xs md:text-sm mt-1 leading-tight">{label}</div>
             </div>
           ))}
         </div>

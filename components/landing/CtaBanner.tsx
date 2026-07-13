@@ -3,20 +3,20 @@ import { WHATSAPP_URL, CALL_URL, AGENT_PHONE, WHATSAPP_GENERAL_MSG } from '@/lib
 
 export default function CtaBanner() {
   return (
-    <section className="py-20 bg-gradient-to-br from-navy-700 via-navy-600 to-navy-800 relative overflow-hidden">
+    <section className="py-14 sm:py-20 bg-gradient-to-br from-navy-700 via-navy-600 to-navy-800 relative overflow-hidden">
       <div className="absolute top-0 right-0 w-72 h-72 rounded-full opacity-10"
         style={{ background: 'radial-gradient(circle, rgb(201 168 76), transparent)' }} />
       <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full opacity-10"
         style={{ background: 'radial-gradient(circle, rgb(201 168 76), transparent)' }} />
 
       <div className="relative z-10 max-w-4xl mx-auto px-4 text-center">
-        <h2 className="font-heading font-800 text-white text-3xl md:text-4xl mb-3">
+        <h2 className="font-heading font-800 text-white text-2xl sm:text-3xl md:text-4xl mb-3 text-balance">
           Looking to Buy, Sell or Rent in Lahore?
         </h2>
-        <p className="font-urdu text-gold-300 text-2xl mb-4">
+        <p className="font-urdu text-gold-300 text-xl sm:text-2xl mb-4 text-center">
           لاہور میں خریدنا، بیچنا یا کرایہ؟
         </p>
-        <p className="text-white/70 mb-10 max-w-xl mx-auto">
+        <p className="text-white/70 text-sm sm:text-base mb-8 sm:mb-10 max-w-xl mx-auto">
           Contact us now — we respond within minutes. Available 7 days a week.
         </p>
 

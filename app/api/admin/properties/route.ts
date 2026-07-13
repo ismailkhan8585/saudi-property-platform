@@ -1,33 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServiceClient } from '@/lib/supabase';
+import { randomUUID } from 'crypto';
+import { prisma } from '@/lib/prisma';
+import type { PossessionStatus, PriceType, PropertyCategory, PropertyStatus, Purpose, SizeUnit } from '@prisma/client';
 import { slugify, generatePropertyId } from '@/lib/utils';
+import { revalidateTag } from 'next/cache';
+import { PROPERTY_CACHE_TAG } from '@/lib/data/public';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const supabase = getServiceClient();
-
-    const { count } = await supabase.from('properties').select('*', { count: 'exact', head: true });
-    const seq = (count ?? 0) + 1;
+    const count = await prisma.properties.count();
+    const seq = count + 1;
     const propertyId = generatePropertyId(seq);
     const slug = `${slugify(body.title)}-${propertyId.toLowerCase()}`;
 
-    const { data, error } = await supabase.from('properties').insert({
+    const data = await prisma.properties.create({ data: {
+      id:             randomUUID(),
       property_id:    propertyId,
       slug,
       title:          body.title,
       title_ur:       body.titleUr || null,
       description:    body.description || null,
       description_ur: body.descriptionUr || null,
-      purpose:        body.purpose,
-      category:       body.category,
+      purpose:        body.purpose as Purpose,
+      category:       body.category as PropertyCategory,
       sub_category:   body.subCategory || null,
-      status:         body.status || 'AVAILABLE',
-      price_type:     body.priceType,
+      status:         (body.status || 'AVAILABLE') as PropertyStatus,
+      price_type:     body.priceType as PriceType,
       price:          body.price ? Number(body.price) : null,
       rent_price:     body.rentPrice ? Number(body.rentPrice) : null,
       size:           Number(body.size),
-      size_unit:      body.sizeUnit || 'MARLA',
+      size_unit:      (body.sizeUnit || 'MARLA') as SizeUnit,
       bedrooms:       body.bedrooms ? Number(body.bedrooms) : null,
       bathrooms:      body.bathrooms ? Number(body.bathrooms) : null,
       floors:         body.floors ? Number(body.floors) : null,
@@ -47,14 +50,16 @@ export async function POST(req: NextRequest) {
       has_garage:     body.hasGarage || false,
       has_garden:     body.hasGarden || false,
       has_servant_qtr: body.hasServantQtr || false,
-      possession:     body.possession || 'AVAILABLE',
+      possession:     (body.possession || 'AVAILABLE') as PossessionStatus,
       featured:       body.featured || false,
       is_active:      body.isActive !== false,
-    }).select().maybeSingle();
+      updated_at:     new Date(),
+    } });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidateTag(PROPERTY_CACHE_TAG);
+
     return NextResponse.json({ property: data });
-  } catch {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
   }
 }

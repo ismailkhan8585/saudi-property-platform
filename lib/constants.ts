@@ -3,8 +3,8 @@ export const AGENT_NAME_UR = 'احمد پراپرٹیز';
 export const TAGLINE_EN = 'Your Trusted Property Dealer in Lahore';
 export const TAGLINE_UR = 'لاہور میں آپ کا قابل اعتماد پراپرٹی ڈیلر';
 export const CITY = 'Lahore';
-export const AGENT_PHONE = '+923001234567';
-export const WHATSAPP_NUMBER = '923001234567';
+export const AGENT_PHONE = '+923029154977';
+export const WHATSAPP_NUMBER = '923029154977';
 export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}`;
 export const CALL_URL = `tel:${AGENT_PHONE}`;
 export const AGENT_EMAIL = 'info@ahmedproperties.pk';
@@ -17,32 +17,7 @@ export const WHATSAPP_PROPERTY_MSG = (title: string, id: string) =>
 export const WHATSAPP_GENERAL_MSG =
   "Hello! I'm interested in a property in Lahore. Can you help me?";
 
-export const LAHORE_SOCIETIES = [
-  'DHA Lahore',
-  'Bahria Town Lahore',
-  'Gulberg',
-  'Model Town',
-  'Johar Town',
-  'Garden Town',
-  'Allama Iqbal Town',
-  'Faisal Town',
-  'Valencia Town',
-  'Lake City',
-  'Paragon City',
-  'Askari Housing',
-  'Wapda Town',
-  'Punjab University Society',
-  'Raiwind Road',
-  'Canal Road',
-  'Cantt',
-  'Sabzazar',
-  'Iqbal Town',
-  'Township',
-  'Tajpura',
-  'Other',
-] as const;
-
-export type LaSociety = (typeof LAHORE_SOCIETIES)[number];
+export { LAHORE_SOCIETIES, type LahoreSociety as LaSociety } from './societies';
 
 export const PROPERTY_CATEGORIES = [
   { value: 'HOUSE',      label: 'House',       labelUr: 'مکان',      icon: '🏠' },

@@ -1,19 +1,11 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import PropertyCard from '@/components/properties/PropertyCard';
-import { getServiceClient } from '@/lib/supabase';
-import { mapProperty } from '@/lib/mappers';
+import { getHomePageData } from '@/lib/data/public';
 import type { Property } from '@/lib/types';
 
 async function getRentProperties(): Promise<Property[]> {
-  const { data } = await getServiceClient()
-    .from('properties')
-    .select('*')
-    .eq('is_active', true)
-    .eq('purpose', 'RENT')
-    .order('created_at', { ascending: false })
-    .limit(6);
-  return (data ?? []).map(mapProperty);
+  return (await getHomePageData()).forRent;
 }
 
 export default async function ForRentSection() {

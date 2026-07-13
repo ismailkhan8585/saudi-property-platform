@@ -33,11 +33,11 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-800 flex items-center justify-center px-4">
+    <div className="min-h-[100svh] bg-navy-800 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gold-500 rounded-2xl mb-4">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-gold-500 rounded-2xl mb-4">
             <Building2 className="w-8 h-8 text-white" />
           </div>
           <h1 className="font-heading font-800 text-white text-2xl">{AGENT_NAME_EN}</h1>
@@ -45,7 +45,7 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Card */}
-        <div className="bg-white rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white rounded-2xl p-5 sm:p-8 shadow-2xl">
           <div className="flex items-center gap-2 mb-6">
             <Lock className="w-5 h-5 text-navy-500" />
             <h2 className="font-heading font-700 text-navy-700 text-lg">Sign In to Admin</h2>

@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServiceClient } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
+import type { PossessionStatus, PriceType, PropertyCategory, PropertyStatus, Purpose, SizeUnit } from '@prisma/client';
+import { revalidateTag } from 'next/cache';
+import { PROPERTY_CACHE_TAG } from '@/lib/data/public';
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const body = await req.json();
-    const supabase = getServiceClient();
-
-    const { data, error } = await supabase
-      .from('properties')
-      .update({
+    const data = await prisma.properties.update({
+      where: { id },
+      data: {
         title:          body.title,
         title_ur:       body.titleUr || null,
         description:    body.description || null,
-        purpose:        body.purpose,
-        category:       body.category,
-        status:         body.status,
-        price_type:     body.priceType,
+        purpose:        body.purpose as Purpose,
+        category:       body.category as PropertyCategory,
+        status:         body.status as PropertyStatus,
+        price_type:     body.priceType as PriceType,
         price:          body.price ? Number(body.price) : null,
         rent_price:     body.rentPrice ? Number(body.rentPrice) : null,
         size:           Number(body.size),
-        size_unit:      body.sizeUnit,
+        size_unit:      body.sizeUnit as SizeUnit,
         bedrooms:       body.bedrooms ? Number(body.bedrooms) : null,
         bathrooms:      body.bathrooms ? Number(body.bathrooms) : null,
         floors:         body.floors ? Number(body.floors) : null,
@@ -38,26 +40,27 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         has_garage:     body.hasGarage,
         has_garden:     body.hasGarden,
         has_servant_qtr: body.hasServantQtr,
-        possession:     body.possession,
+        possession:     body.possession as PossessionStatus,
         featured:       body.featured,
         is_active:      body.isActive,
-      })
-      .eq('id', params.id)
-      .select()
-      .maybeSingle();
+      },
+    });
 
-    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    revalidateTag(PROPERTY_CACHE_TAG);
+
     return NextResponse.json({ property: data });
-  } catch {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
   }
 }
 
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  const { error } = await getServiceClient()
-    .from('properties')
-    .update({ is_active: false })
-    .eq('id', params.id);
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ success: true });
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params;
+    await prisma.properties.update({ where: { id }, data: { is_active: false } });
+    revalidateTag(PROPERTY_CACHE_TAG);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
+  }
 }

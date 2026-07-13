@@ -1,5 +1,5 @@
 export const dynamic = 'force-dynamic';
-import { getServiceClient } from '@/lib/supabase';
+import { prisma } from '@/lib/prisma';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { Home, MessageSquare, TrendingUp, Users, Phone, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -7,31 +7,30 @@ import { CALL_URL, WHATSAPP_URL } from '@/lib/constants';
 import { formatDistance } from 'date-fns';
 
 async function getDashboardStats() {
-  const supabase = getServiceClient();
-
   const [
-    { count: totalActive },
-    { count: saleCount },
-    { count: rentCount },
-    { count: unreadLeads },
-    { data: recentLeads },
-    { data: topProperties },
+    totalActive,
+    saleCount,
+    rentCount,
+    unreadLeads,
+    recentLeadRows,
+    topProperties,
   ] = await Promise.all([
-    supabase.from('properties').select('*', { count: 'exact', head: true }).eq('is_active', true),
-    supabase.from('properties').select('*', { count: 'exact', head: true }).eq('is_active', true).eq('purpose', 'SALE'),
-    supabase.from('properties').select('*', { count: 'exact', head: true }).eq('is_active', true).eq('purpose', 'RENT'),
-    supabase.from('leads').select('*', { count: 'exact', head: true }).eq('is_read', false),
-    supabase.from('leads').select('*, property:property_id(title, property_id)').order('created_at', { ascending: false }).limit(8),
-    supabase.from('properties').select('id, title, views, society').eq('is_active', true).order('views', { ascending: false }).limit(5),
+    prisma.properties.count({ where: { is_active: true } }),
+    prisma.properties.count({ where: { is_active: true, purpose: 'SALE' } }),
+    prisma.properties.count({ where: { is_active: true, purpose: 'RENT' } }),
+    prisma.leads.count({ where: { is_read: false } }),
+    prisma.leads.findMany({ include: { properties: { select: { title: true, property_id: true } } }, orderBy: { created_at: 'desc' }, take: 8 }),
+    prisma.properties.findMany({ select: { id: true, title: true, views: true, society: true }, where: { is_active: true }, orderBy: { views: 'desc' }, take: 5 }),
   ]);
+  const recentLeads = recentLeadRows.map(({ properties, ...lead }) => ({ ...lead, property: properties }));
 
   return {
-    totalActive: totalActive ?? 0,
-    saleCount:   saleCount ?? 0,
-    rentCount:   rentCount ?? 0,
-    unreadLeads: unreadLeads ?? 0,
-    recentLeads: recentLeads ?? [],
-    topProperties: topProperties ?? [],
+    totalActive,
+    saleCount,
+    rentCount,
+    unreadLeads,
+    recentLeads,
+    topProperties,
   };
 }
 
@@ -62,25 +61,25 @@ export default async function DashboardPage() {
   ];
 
   return (
-    <div className="flex min-h-screen bg-surface-secondary">
+    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary">
       <AdminSidebar unreadLeads={stats.unreadLeads} />
 
-      <div className="flex-1 p-6 md:p-8 overflow-y-auto">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto">
         <div className="max-w-6xl mx-auto">
-          <h1 className="font-heading font-800 text-navy-700 text-2xl mb-2">Dashboard</h1>
+          <h1 className="font-heading font-800 text-navy-700 text-xl sm:text-2xl mb-2">Dashboard</h1>
           <p className="text-gray-500 text-sm mb-8">Overview of your property listings and leads</p>
 
           {/* Stat Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 mb-6 sm:mb-8">
             {statCards.map(({ label, value, Icon, color, bg, text, urgent }) => (
-              <div key={label} className={cn('bg-white rounded-2xl p-5 border-l-4 shadow-sm', color, urgent && value > 0 && 'ring-2 ring-gold-400')}>
+              <div key={label} className={cn('min-w-0 bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 border-l-4 shadow-sm', color, urgent && value > 0 && 'ring-2 ring-gold-400')}>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-sm font-600 text-gray-500">{label}</p>
-                  <div className={cn('w-9 h-9 rounded-xl flex items-center justify-center', bg)}>
+                  <p className="text-[11px] sm:text-sm leading-tight font-600 text-gray-500">{label}</p>
+                  <div className={cn('hidden min-[360px]:flex w-8 h-8 sm:w-9 sm:h-9 rounded-xl items-center justify-center shrink-0', bg)}>
                     <Icon className={cn('w-5 h-5', text)} />
                   </div>
                 </div>
-                <p className={cn('font-price font-700 text-3xl', text)}>{value}</p>
+                <p className={cn('font-price font-700 text-2xl sm:text-3xl', text)}>{value}</p>
                 {urgent && value > 0 && (
                   <p className="text-gold-600 text-xs font-600 mt-1">Needs attention!</p>
                 )}
@@ -91,7 +90,7 @@ export default async function DashboardPage() {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             {/* Recent Leads */}
             <div className="xl:col-span-2 bg-white rounded-2xl border border-surface-border shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-surface-border flex items-center justify-between">
+              <div className="px-4 sm:px-6 py-4 border-b border-surface-border flex items-center justify-between gap-3">
                 <h2 className="font-heading font-700 text-navy-700 text-base">Recent Leads</h2>
                 <a href="/admin/leads" className="text-gold-600 text-sm hover:text-gold-700 font-600">View All →</a>
               </div>
@@ -100,7 +99,7 @@ export default async function DashboardPage() {
                   <p className="text-gray-400 text-sm text-center py-8">No leads yet</p>
                 ) : (
                   stats.recentLeads.map((lead: any) => (
-                    <div key={lead.id} className={cn('px-6 py-4 flex items-start gap-3', !lead.is_read && 'bg-gold-50/50')}>
+                    <div key={lead.id} className={cn('px-4 sm:px-6 py-4 flex items-start gap-3', !lead.is_read && 'bg-gold-50/50')}>
                       <div className="flex-1 min-w-0">
                         <div className="flex flex-wrap items-center gap-2 mb-1">
                           <span className="font-600 text-navy-700 text-sm truncate">{lead.name}</span>

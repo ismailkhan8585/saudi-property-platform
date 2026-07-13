@@ -1,4 +1,5 @@
-export const dynamic = 'force-dynamic';
+export const revalidate = 300;
+import { cache } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -6,7 +7,6 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import WhatsAppButton from '@/components/layout/WhatsAppButton';
 import ContactAgentForm from '@/components/properties/ContactAgentForm';
-import { getServiceClient } from '@/lib/supabase';
 import { formatPKR, formatRent } from '@/lib/currency';
 import { WHATSAPP_URL, CALL_URL, AGENT_PHONE, WHATSAPP_PROPERTY_MSG } from '@/lib/constants';
 import type { Property } from '@/lib/types';
@@ -14,23 +14,16 @@ import {
   MapPin, Bed, Bath, Maximize2, Calendar, Phone, MessageCircle,
   CheckCircle, XCircle, Home, ChevronRight
 } from 'lucide-react';
-import { mapProperty } from '@/lib/mappers';
 import type { Metadata } from 'next';
+import { getPublicPropertyBySlug } from '@/lib/data/public';
 
-interface Params { params: { slug: string } }
+interface Params { params: Promise<{ slug: string }> }
 
-async function getProperty(slug: string): Promise<Property | null> {
-  const { data } = await getServiceClient()
-    .from('properties')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .maybeSingle();
-  return data ? mapProperty(data as Record<string, unknown>) : null;
-}
+const getProperty = cache((slug: string): Promise<Property | null> => getPublicPropertyBySlug(slug));
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const p = await getProperty(params.slug);
+  const { slug } = await params;
+  const p = await getProperty(slug);
   if (!p) return { title: 'Property Not Found' };
   const price = p.priceType === 'ON_REQUEST' ? 'Price on Request'
     : p.purpose === 'RENT' ? formatRent(Number(p.rentPrice))
@@ -56,7 +49,8 @@ const AMENITIES = [
 ] as const;
 
 export default async function PropertyDetailPage({ params }: Params) {
-  const property = await getProperty(params.slug);
+  const { slug } = await params;
+  const property = await getProperty(slug);
   if (!property) notFound();
 
   const {
@@ -81,23 +75,23 @@ export default async function PropertyDetailPage({ params }: Params) {
       <Navbar />
       <main className="min-h-screen bg-surface-secondary">
         {/* Breadcrumb */}
-        <div className="bg-navy-700 pt-20 pb-6">
+        <div className="bg-navy-700 pt-20 pb-5 sm:pb-6">
           <div className="max-w-7xl mx-auto px-4">
-            <nav className="flex items-center gap-2 text-white/60 text-sm">
+            <nav className="flex items-center gap-1.5 sm:gap-2 text-white/60 text-xs sm:text-sm min-w-0">
               <Link href="/" className="hover:text-white flex items-center gap-1"><Home className="w-3.5 h-3.5" /></Link>
               <ChevronRight className="w-3.5 h-3.5" />
               <Link href="/properties" className="hover:text-white">Properties</Link>
               <ChevronRight className="w-3.5 h-3.5" />
-              <span className="text-gold-300 truncate max-w-xs">{title}</span>
+              <span className="text-gold-300 truncate min-w-0 max-w-[55vw] sm:max-w-xs">{title}</span>
             </nav>
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
+        <div className="max-w-7xl mx-auto px-4 py-5 sm:py-8">
+          <div className="flex flex-col lg:flex-row gap-5 sm:gap-8">
 
             {/* Main Content */}
-            <div className="flex-1 min-w-0 space-y-6">
+            <div className="flex-1 min-w-0 space-y-4 sm:space-y-6">
 
               {/* Photo Gallery */}
               <div className="bg-white rounded-2xl overflow-hidden border border-surface-border">
@@ -110,15 +104,15 @@ export default async function PropertyDetailPage({ params }: Params) {
                     priority
                     sizes="(max-width: 1024px) 100vw, 70vw"
                   />
-                  <div className="absolute top-4 left-4 flex gap-2">
-                    <span className={`px-3 py-1.5 rounded-lg text-sm font-700 uppercase ${purpose === 'SALE' ? 'bg-navy-500 text-white' : 'bg-green-600 text-white'}`}>
+                  <div className="absolute top-2 sm:top-4 left-2 sm:left-4 right-2 flex flex-wrap gap-1.5 sm:gap-2">
+                    <span className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-sm font-700 uppercase ${purpose === 'SALE' ? 'bg-navy-500 text-white' : 'bg-green-600 text-white'}`}>
                       For {purpose === 'SALE' ? 'Sale' : 'Rent'}
                     </span>
                     {property.featured && (
-                      <span className="bg-gold-500 text-white px-3 py-1.5 rounded-lg text-sm font-700 uppercase">Featured</span>
+                      <span className="bg-gold-500 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-sm font-700 uppercase">Featured</span>
                     )}
                     {status !== 'AVAILABLE' && (
-                      <span className="bg-error text-white px-3 py-1.5 rounded-lg text-sm font-700 uppercase">{status}</span>
+                      <span className="bg-error text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-sm font-700 uppercase">{status}</span>
                     )}
                   </div>
                 </div>
@@ -127,7 +121,7 @@ export default async function PropertyDetailPage({ params }: Params) {
                   <div className="p-3 flex gap-2 overflow-x-auto scrollbar-hide">
                     {photos.slice(1).map((photo, i) => (
                       <div key={i} className="relative w-20 h-16 shrink-0 rounded-lg overflow-hidden border-2 border-surface-border">
-                        <Image src={photo} alt={`Photo ${i + 2}`} fill className="object-cover" />
+                        <Image src={photo} alt={`Photo ${i + 2}`} fill className="object-cover" sizes="5rem" />
                       </div>
                     ))}
                   </div>
@@ -135,26 +129,26 @@ export default async function PropertyDetailPage({ params }: Params) {
               </div>
 
               {/* Property Header */}
-              <div className="bg-white rounded-2xl p-6 border border-surface-border">
+              <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <h1 className="font-heading font-800 text-navy-800 text-2xl md:text-3xl mb-3 leading-tight">{title}</h1>
+                  <div className="flex-1 min-w-0 basis-full sm:basis-auto">
+                    <h1 className="font-heading font-800 text-navy-800 text-xl sm:text-2xl md:text-3xl mb-3 leading-tight break-words">{title}</h1>
                     <div className="flex items-center gap-2 text-gray-500 text-sm mb-4">
                       <MapPin className="w-4 h-4 text-gold-500 shrink-0" />
                       <span>{[society, area, city].filter(Boolean).join(', ')}</span>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-400">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-400">
                       <span className="font-price">ID: #{propertyId}</span>
                       <span>Added: {new Date(createdAt).toLocaleDateString('en-PK')}</span>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right max-w-full">
                     {priceType === 'ON_REQUEST' ? (
                       <span className="inline-block bg-gold-100 text-gold-700 px-4 py-2 rounded-xl text-sm font-700">
                         Price on Request
                       </span>
                     ) : (
-                      <div className="font-price font-700 text-navy-700 text-2xl md:text-3xl">{displayPrice()}</div>
+                      <div className="font-price font-700 text-navy-700 text-xl sm:text-2xl md:text-3xl break-words">{displayPrice()}</div>
                     )}
                   </div>
                 </div>
@@ -209,9 +203,9 @@ export default async function PropertyDetailPage({ params }: Params) {
               </div>
 
               {/* Amenities */}
-              <div className="bg-white rounded-2xl p-6 border border-surface-border">
+              <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border">
                 <h2 className="font-heading font-700 text-navy-700 text-lg mb-5">Features & Amenities</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 gap-3">
                   {AMENITIES.map(({ key, label }) => {
                     const has = property[key as keyof Property] as boolean;
                     return (
@@ -229,7 +223,7 @@ export default async function PropertyDetailPage({ params }: Params) {
 
               {/* Description */}
               {description && (
-                <div className="bg-white rounded-2xl p-6 border border-surface-border">
+                <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border">
                   <h2 className="font-heading font-700 text-navy-700 text-lg mb-4">Property Description</h2>
                   <p className="text-gray-600 leading-relaxed whitespace-pre-wrap">{description}</p>
                 </div>
@@ -242,7 +236,7 @@ export default async function PropertyDetailPage({ params }: Params) {
                 {/* Quick Contact */}
                 <div className="bg-white rounded-2xl p-5 border border-surface-border">
                   <h3 className="font-heading font-700 text-navy-700 text-base mb-4">Interested in this property?</h3>
-                  <div className="flex gap-2 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4">
                     <a
                       href={`${WHATSAPP_URL}?text=${encodeURIComponent(waMsg)}`}
                       target="_blank"

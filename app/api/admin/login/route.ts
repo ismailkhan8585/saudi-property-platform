@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServiceClient } from '@/lib/supabase';
 import { cookies } from 'next/headers';
 
 const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    ?? 'admin@ahmedproperties.pk';
@@ -17,7 +16,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     cookieStore.set('admin_session', 'authenticated', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -33,7 +32,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE() {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   cookieStore.delete('admin_session');
   return NextResponse.json({ success: true });
 }

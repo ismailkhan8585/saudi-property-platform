@@ -67,24 +67,24 @@ export default function SettingsPage() {
   const labelCls = 'text-sm font-600 text-gray-700 block mb-1.5';
 
   if (loading) return (
-    <div className="flex min-h-screen bg-surface-secondary">
+    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary">
       <AdminSidebar />
-      <div className="flex-1 p-8 flex items-center justify-center">
+      <div className="flex-1 p-4 sm:p-8 flex items-center justify-center">
         <div className="text-gray-400">Loading...</div>
       </div>
     </div>
   );
 
   return (
-    <div className="flex min-h-screen bg-surface-secondary">
+    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary">
       <AdminSidebar />
-      <div className="flex-1 p-6 md:p-8 overflow-y-auto">
+      <div className="flex-1 min-w-0 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto">
         <div className="max-w-3xl mx-auto">
-          <h1 className="font-heading font-800 text-navy-700 text-2xl mb-6">Site Settings</h1>
+          <h1 className="font-heading font-800 text-navy-700 text-xl sm:text-2xl mb-6">Site Settings</h1>
 
           <form onSubmit={handleSave} className="space-y-6">
             {/* Agent Info */}
-            <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-4">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
               <h2 className="font-heading font-700 text-navy-700 text-base">Agent Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Agent Name (English)</label><input className={inputCls} value={form.agentNameEn} onChange={e => set('agentNameEn', e.target.value)} /></div>
@@ -98,11 +98,11 @@ export default function SettingsPage() {
             </div>
 
             {/* Contact */}
-            <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-4">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
               <h2 className="font-heading font-700 text-navy-700 text-base">Contact Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className={labelCls}>Phone Number</label><input className={inputCls} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+923001234567" /></div>
-                <div><label className={labelCls}>WhatsApp Number</label><input className={inputCls} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="923001234567" /></div>
+                <div><label className={labelCls}>Phone Number</label><input className={inputCls} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+923029154977" /></div>
+                <div><label className={labelCls}>WhatsApp Number</label><input className={inputCls} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="923029154977" /></div>
                 <div><label className={labelCls}>Email</label><input className={inputCls} type="email" value={form.email} onChange={e => set('email', e.target.value)} /></div>
               </div>
               <div><label className={labelCls}>Office Address (English)</label><input className={inputCls} value={form.officeAddressEn} onChange={e => set('officeAddressEn', e.target.value)} /></div>
@@ -110,7 +110,7 @@ export default function SettingsPage() {
             </div>
 
             {/* Stats */}
-            <div className="bg-white rounded-2xl p-6 border border-surface-border space-y-4">
+            <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
               <h2 className="font-heading font-700 text-navy-700 text-base">Stats for Homepage</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label className={labelCls}>Years Experience</label><input className={inputCls} type="number" value={form.yearsExperience} onChange={e => set('yearsExperience', Number(e.target.value))} /></div>
@@ -120,7 +120,7 @@ export default function SettingsPage() {
             </div>
 
             <button type="submit" disabled={saving}
-              className="flex items-center gap-2 bg-navy-500 hover:bg-navy-600 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-700 transition-colors"
+              className="w-full sm:w-auto flex items-center justify-center gap-2 bg-navy-500 hover:bg-navy-600 disabled:opacity-50 text-white px-8 py-3 rounded-xl font-700 transition-colors"
             >
               <Save className="w-4 h-4" />
               {saving ? 'Saving...' : 'Save Settings'}

@@ -1,0 +1,170 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("Database_URL")
+}
+
+model admins {
+  id             String    @id
+  name           String
+  email          String    @unique
+  password_hash  String
+  phone          String?
+  photo          String?
+  is_active      Boolean   @default(true)
+  login_attempts Int       @default(0)
+  locked_until   DateTime?
+  last_login_at  DateTime?
+  created_at     DateTime  @default(now())
+}
+
+model leads {
+  id             String      @id
+  property_id    String?
+  type           LeadType
+  name           String
+  phone          String
+  message        String?
+  preferred_date DateTime?
+  preferred_time String?
+  is_read        Boolean     @default(false)
+  created_at     DateTime    @default(now())
+  properties     properties? @relation(fields: [property_id], references: [id])
+}
+
+model properties {
+  id              String           @id
+  property_id     String           @unique
+  slug            String           @unique
+  title           String
+  title_ur        String?
+  description     String?
+  description_ur  String?
+  purpose         Purpose
+  category        PropertyCategory
+  sub_category    String?
+  status          PropertyStatus   @default(AVAILABLE)
+  price_type      PriceType        @default(FIXED)
+  price           Decimal?         @db.Decimal(15, 2)
+  rent_price      Decimal?         @db.Decimal(10, 2)
+  size            Decimal          @db.Decimal(8, 2)
+  size_unit       SizeUnit         @default(MARLA)
+  bedrooms        Int?
+  bathrooms       Int?
+  floors          Int?
+  facing          String?
+  city            String           @default("Lahore")
+  society         String?
+  area            String?
+  address         String?
+  map_lat         Float?
+  map_lng         Float?
+  photos          String[]         @default([])
+  is_corner       Boolean          @default(false)
+  is_park_facing  Boolean          @default(false)
+  is_gated        Boolean          @default(false)
+  has_security    Boolean          @default(false)
+  has_gas         Boolean          @default(false)
+  has_electricity Boolean          @default(false)
+  has_water       Boolean          @default(false)
+  has_garage      Boolean          @default(false)
+  has_garden      Boolean          @default(false)
+  has_servant_qtr Boolean          @default(false)
+  possession      PossessionStatus @default(AVAILABLE)
+  featured        Boolean          @default(false)
+  is_active       Boolean          @default(true)
+  views           Int              @default(0)
+  created_at      DateTime         @default(now())
+  updated_at      DateTime
+  leads           leads[]
+}
+
+model site_settings {
+  id                String   @id
+  agent_name_en     String   @default("Ahmed Properties")
+  agent_name_ur     String?
+  tagline_en        String?
+  tagline_ur        String?
+  phone             String   @default("+923029154977")
+  whatsapp          String   @default("923029154977")
+  email             String?
+  office_address_en String?
+  office_address_ur String?
+  facebook_url      String?
+  instagram_url     String?
+  youtube_url       String?
+  years_experience  Int      @default(0)
+  deals_closed      Int      @default(0)
+  happy_clients     Int      @default(0)
+  agent_photo       String?
+  agent_bio_en      String?
+  agent_bio_ur      String?
+  updated_at        DateTime
+}
+
+model testimonials {
+  id            String   @id
+  client_name   String
+  client_area   String?
+  property_type String?
+  rating        Int      @default(5)
+  quote_text    String
+  quote_ur      String?
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now())
+}
+
+enum LeadType {
+  WHATSAPP_CLICK
+  CALL_CLICK
+  CONTACT_FORM
+  SCHEDULE_VISIT
+  PRICE_REQUEST
+}
+
+enum PossessionStatus {
+  AVAILABLE
+  ON_BOOKING
+  UNDER_CONSTRUCTION
+}
+
+enum PriceType {
+  FIXED
+  ON_REQUEST
+}
+
+enum PropertyCategory {
+  HOUSE
+  APARTMENT
+  PLOT
+  COMMERCIAL
+  FARMHOUSE
+  VILLA
+  ROOM
+  PORTION
+  OFFICE
+  SHOP
+  WAREHOUSE
+}
+
+enum PropertyStatus {
+  AVAILABLE
+  SOLD
+  RENTED
+  RESERVED
+}
+
+enum Purpose {
+  SALE
+  RENT
+}
+
+enum SizeUnit {
+  MARLA
+  KANAL
+  SQFT
+  SQYD
+}

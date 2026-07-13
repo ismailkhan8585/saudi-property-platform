@@ -35,6 +35,11 @@
     @apply border-border;
   }
 
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-surface-secondary text-foreground font-body antialiased;
   }
@@ -87,7 +92,7 @@
   }
 
   .section-padding {
-    @apply py-16 md:py-24;
+    @apply py-12 sm:py-16 md:py-24;
   }
 
   .card-hover {

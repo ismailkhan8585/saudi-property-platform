@@ -1,22 +1,9 @@
 import Link from 'next/link';
 import { PROPERTY_CATEGORIES } from '@/lib/constants';
-import { getServiceClient } from '@/lib/supabase';
-
-async function getCategoryCounts() {
-  const { data } = await getServiceClient()
-    .from('properties')
-    .select('category')
-    .eq('is_active', true);
-
-  const counts: Record<string, number> = {};
-  for (const row of data ?? []) {
-    counts[row.category] = (counts[row.category] ?? 0) + 1;
-  }
-  return counts;
-}
+import { getHomePageData } from '@/lib/data/public';
 
 export default async function BrowseByCategory() {
-  const counts = await getCategoryCounts();
+  const counts = (await getHomePageData()).categoryCounts;
 
   const main = PROPERTY_CATEGORIES.slice(0, 6);
 
@@ -30,14 +17,14 @@ export default async function BrowseByCategory() {
           <p className="font-urdu text-gold-600 text-xl mt-6">قسم کے مطابق تلاش کریں</p>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {main.map(({ value, label, labelUr, icon }) => (
             <Link
               key={value}
               href={`/search?category=${value}`}
-              className="group flex flex-col items-center gap-3 bg-surface-secondary hover:bg-navy-500 border border-surface-border rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+              className="group min-w-0 flex flex-col items-center gap-2 sm:gap-3 bg-surface-secondary hover:bg-navy-500 border border-surface-border rounded-xl sm:rounded-2xl p-4 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
             >
-              <span className="text-4xl">{icon}</span>
+              <span className="text-3xl sm:text-4xl">{icon}</span>
               <div className="text-center">
                 <p className="font-heading font-700 text-navy-700 group-hover:text-white text-sm transition-colors">
                   {label}

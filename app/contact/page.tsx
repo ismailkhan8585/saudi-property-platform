@@ -39,19 +39,19 @@ export default function ContactPage() {
     <>
       <Navbar />
       <main className="min-h-screen bg-surface-secondary">
-        <div className="bg-navy-700 pt-24 pb-12">
+        <div className="bg-navy-700 pt-20 sm:pt-24 pb-9 sm:pb-12">
           <div className="max-w-6xl mx-auto px-4 text-center">
-            <h1 className="font-heading font-800 text-white text-4xl md:text-5xl mb-3">Contact Us</h1>
+            <h1 className="font-heading font-800 text-white text-3xl sm:text-4xl md:text-5xl mb-3">Contact Us</h1>
             <p className="font-urdu text-gold-300 text-xl">ہم سے رابطہ کریں</p>
           </div>
         </div>
 
         <section className="section-padding">
           <div className="max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-10">
 
               {/* Contact Form */}
-              <div className="bg-white rounded-2xl p-8 border border-surface-border shadow-sm">
+              <div className="bg-white rounded-2xl p-5 sm:p-8 border border-surface-border shadow-sm">
                 <h2 className="font-heading font-700 text-navy-700 text-xl mb-6">Send a Message</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
@@ -108,7 +108,7 @@ export default function ContactPage() {
 
               {/* Agent Info */}
               <div className="space-y-5">
-                <div className="bg-white rounded-2xl p-6 border border-surface-border">
+                <div className="bg-white rounded-2xl p-5 sm:p-6 border border-surface-border">
                   <h3 className="font-heading font-700 text-navy-700 text-base mb-5">{AGENT_NAME_EN}</h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
@@ -152,7 +152,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3">
                   <a
                     href={`${WHATSAPP_URL}?text=${encodeURIComponent(WHATSAPP_GENERAL_MSG)}`}
                     target="_blank" rel="noopener noreferrer"

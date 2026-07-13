@@ -1,19 +1,11 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import PropertyCard from '@/components/properties/PropertyCard';
-import { getServiceClient } from '@/lib/supabase';
-import { mapProperty } from '@/lib/mappers';
+import { getHomePageData } from '@/lib/data/public';
 import type { Property } from '@/lib/types';
 
 async function getSaleProperties(): Promise<Property[]> {
-  const { data } = await getServiceClient()
-    .from('properties')
-    .select('*')
-    .eq('is_active', true)
-    .eq('purpose', 'SALE')
-    .order('created_at', { ascending: false })
-    .limit(6);
-  return (data ?? []).map(mapProperty);
+  return (await getHomePageData()).forSale;
 }
 
 export default async function ForSaleSection() {

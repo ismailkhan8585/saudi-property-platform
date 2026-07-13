@@ -1,12 +1,12 @@
+// Cached SSR keeps deployments independent from database availability at build time.
 export const dynamic = 'force-dynamic';
 import Image from 'next/image';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import WhatsAppButton from '@/components/layout/WhatsAppButton';
-import { getServiceClient } from '@/lib/supabase';
+import { getSiteSettings, getTestimonials } from '@/lib/data/public';
 import { WHATSAPP_URL, CALL_URL, AGENT_PHONE, WHATSAPP_GENERAL_MSG, STATS, AGENT_NAME_EN } from '@/lib/constants';
 import { Phone, MessageCircle, Star, Award, Home, MapPin, Clock } from 'lucide-react';
-import type { SiteSettings } from '@/lib/types';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -23,66 +23,47 @@ const services = [
   { icon: '💡', title: 'Investment Advice',             desc: 'Expert guidance on the best investment opportunities in Lahore real estate.' },
 ];
 
-async function getSettings(): Promise<SiteSettings | null> {
-  const { data } = await getServiceClient().from('site_settings').select('*').maybeSingle();
-  return data as SiteSettings | null;
-}
-
-interface Testimonial {
-  id: string;
-  client_name: string;
-  client_area: string;
-  property_type: string;
-  rating: number;
-  quote_text: string;
-}
-
-async function getTestimonials(): Promise<Testimonial[]> {
-  const { data } = await getServiceClient()
-    .from('testimonials').select('*').eq('is_active', true).limit(3);
-  return (data as Testimonial[]) ?? [];
-}
-
 export default async function AboutPage() {
-  const [settings, testimonials] = await Promise.all([getSettings(), getTestimonials()]);
+  const [settings, testimonials] = await Promise.all([getSiteSettings(), getTestimonials(3)]);
 
   return (
     <>
       <Navbar />
       <main className="min-h-screen">
         {/* Hero */}
-        <div className="bg-navy-700 pt-24 pb-16">
+        <div className="bg-navy-700 pt-20 sm:pt-24 pb-10 sm:pb-16">
           <div className="max-w-7xl mx-auto px-4 text-center">
-            <h1 className="font-heading font-800 text-white text-4xl md:text-5xl mb-4">
+            <h1 className="font-heading font-800 text-white text-3xl sm:text-4xl md:text-5xl mb-4 text-balance">
               About {settings?.agentNameEn ?? AGENT_NAME_EN}
             </h1>
-            <p className="text-gold-300 text-lg">Lahore's Trusted Property Consultant</p>
+            <p className="text-gold-300 text-lg">Lahore&apos;s Trusted Property Consultant</p>
           </div>
         </div>
 
         {/* Agent Profile */}
         <section className="section-padding bg-surface-secondary">
           <div className="max-w-6xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
               <div className="flex justify-center lg:justify-start">
                 <div className="relative">
-                  <div className="w-64 h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border-4 border-gold-400 shadow-2xl">
+                  <div className="w-52 h-52 sm:w-64 sm:h-64 md:w-80 md:h-80 rounded-2xl overflow-hidden border-4 border-gold-400 shadow-2xl">
                     <Image
                       src={settings?.agentPhoto ?? 'https://images.pexels.com/photos/3778876/pexels-photo-3778876.jpeg?auto=compress&cs=tinysrgb&w=600'}
                       alt={settings?.agentNameEn ?? AGENT_NAME_EN}
                       fill
                       className="object-cover"
+                      sizes="(max-width: 640px) 13rem, (max-width: 1024px) 20rem, 20rem"
                     />
                   </div>
-                  <div className="absolute -bottom-4 -right-4 bg-gold-500 text-white rounded-2xl px-5 py-3 shadow-xl">
-                    <div className="font-price font-700 text-3xl">{STATS.yearsExperience}+</div>
+                  <div className="absolute -bottom-4 right-0 sm:-right-4 bg-gold-500 text-white rounded-2xl px-3 sm:px-5 py-2 sm:py-3 shadow-xl">
+                    <div className="font-price font-700 text-2xl sm:text-3xl">{STATS.yearsExperience}+</div>
                     <div className="text-xs text-white/80">Years in Lahore Real Estate</div>
                   </div>
                 </div>
               </div>
 
               <div>
-                <h2 className="font-heading font-800 text-navy-700 text-3xl mb-2">
+                <h2 className="font-heading font-800 text-navy-700 text-2xl sm:text-3xl mb-2">
                   {settings?.agentNameEn ?? AGENT_NAME_EN}
                 </h2>
                 <p className="text-gold-600 font-600 mb-6">Property Consultant — Lahore, Pakistan</p>
@@ -96,33 +77,33 @@ export default async function AboutPage() {
                 )}
 
                 {/* Stats */}
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
                   {[
                     { Icon: Home,  val: `${STATS.dealsClosed}+`,      label: 'Deals Closed' },
                     { Icon: Star,  val: `${STATS.happyClients}+`,     label: 'Happy Clients' },
                     { Icon: Award, val: `${STATS.propertiesListed}+`, label: 'Properties' },
                   ].map(({ Icon, val, label }) => (
-                    <div key={label} className="bg-white rounded-xl p-4 text-center border border-surface-border shadow-sm">
+                    <div key={label} className="min-w-0 bg-white rounded-xl p-2 sm:p-4 text-center border border-surface-border shadow-sm">
                       <Icon className="w-5 h-5 text-gold-500 mx-auto mb-2" />
-                      <div className="font-price font-700 text-navy-700 text-2xl">{val}</div>
-                      <div className="text-gray-500 text-xs">{label}</div>
+                      <div className="font-price font-700 text-navy-700 text-xl sm:text-2xl">{val}</div>
+                      <div className="text-gray-500 text-[10px] sm:text-xs leading-tight">{label}</div>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex flex-wrap gap-3">
+                <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-3">
                   <a
                     href={`${WHATSAPP_URL}?text=${encodeURIComponent(WHATSAPP_GENERAL_MSG)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-700 transition-colors"
+                    className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-700 transition-colors"
                   >
                     <MessageCircle className="w-5 h-5" />
                     WhatsApp Me
                   </a>
                   <a
                     href={CALL_URL}
-                    className="flex items-center gap-2 bg-navy-500 hover:bg-navy-600 text-white px-6 py-3 rounded-xl font-700 transition-colors"
+                    className="flex items-center justify-center gap-2 bg-navy-500 hover:bg-navy-600 text-white px-6 py-3 rounded-xl font-700 transition-colors"
                   >
                     <Phone className="w-5 h-5" />
                     {AGENT_PHONE}
@@ -144,7 +125,7 @@ export default async function AboutPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {services.map(({ icon, title, desc }) => (
-                <div key={title} className="flex gap-4 bg-surface-secondary rounded-2xl p-5 border border-surface-border">
+                  <div key={title} className="flex gap-3 sm:gap-4 bg-surface-secondary rounded-2xl p-4 sm:p-5 border border-surface-border">
                   <span className="text-3xl shrink-0">{icon}</span>
                   <div>
                     <h3 className="font-heading font-700 text-navy-700 text-sm mb-1">{title}</h3>
@@ -171,7 +152,7 @@ export default async function AboutPage() {
                         <Star key={i} className={`w-4 h-4 ${i < t.rating ? 'text-gold-500 fill-gold-500' : 'text-gray-200'}`} />
                       ))}
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed mb-4">"{t.quote_text}"</p>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-4">&ldquo;{t.quote_text}&rdquo;</p>
                     <div className="font-heading font-700 text-navy-700 text-sm">{t.client_name}</div>
                     <div className="text-gray-400 text-xs">{t.client_area} · {t.property_type}</div>
                   </div>

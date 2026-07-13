@@ -47,7 +47,7 @@ export default function Navbar() {
             : 'bg-navy-700 shadow-lg backdrop-blur-md'
         )}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
 
             {/* Logo */}
@@ -55,11 +55,11 @@ export default function Navbar() {
               <div className="w-9 h-9 bg-gold-500 rounded-lg flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
-              <div className="hidden sm:block">
-                <span className="font-heading font-800 text-white text-lg leading-tight block">
+              <div className="block min-w-0">
+                <span className="font-heading font-800 text-white text-sm sm:text-lg leading-tight block truncate max-w-[130px] sm:max-w-none">
                   {AGENT_NAME_EN}
                 </span>
-                <span className="text-gold-300 text-xs leading-none font-urdu">
+                <span className="hidden sm:block text-gold-300 text-xs leading-none font-urdu">
                   لاہور پراپرٹی ڈیلر
                 </span>
               </div>
@@ -89,7 +89,7 @@ export default function Navbar() {
                 href={`${WHATSAPP_URL}?text=${encodeURIComponent(WHATSAPP_GENERAL_MSG)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white w-10 h-10 sm:w-auto sm:h-auto sm:px-3 sm:py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 <MessageCircle className="w-4 h-4" />
                 <span className="hidden sm:inline">WhatsApp</span>
@@ -105,7 +105,7 @@ export default function Navbar() {
               {/* Mobile hamburger */}
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="md:hidden p-2 text-white rounded-md hover:bg-white/10"
+                className="md:hidden w-10 h-10 flex items-center justify-center text-white rounded-md hover:bg-white/10"
                 aria-label="Toggle menu"
               >
                 {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -116,7 +116,7 @@ export default function Navbar() {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden bg-navy-800 border-t border-navy-600 px-4 py-4 space-y-1">
+          <div className="md:hidden bg-navy-800 border-t border-navy-600 px-3 py-3 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
             {navLinks.map(({ href, label }) => (
               <Link
                 key={href}
@@ -137,14 +137,14 @@ export default function Navbar() {
       </nav>
 
       {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-navy-800 border-t border-navy-600 safe-area-bottom">
-        <div className="flex">
+      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-navy-800 border-t border-navy-600 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex min-h-[4.5rem]">
           {mobileNavLinks.map(({ href, label, Icon }) => (
             <Link
               key={href}
               href={href}
               className={cn(
-                'flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors',
+                'flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] sm:text-xs font-medium transition-colors',
                 pathname === href
                   ? 'text-gold-400'
                   : 'text-white/60 hover:text-white'

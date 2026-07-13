@@ -70,14 +70,14 @@ export default function LeadsTable() {
   return (
     <div className="bg-white rounded-2xl border border-surface-border shadow-sm overflow-hidden">
       {/* Filter Bar */}
-      <div className="px-6 py-4 border-b border-surface-border flex flex-wrap items-center gap-3">
+      <div className="px-4 sm:px-6 py-4 border-b border-surface-border flex flex-wrap items-center gap-2 sm:gap-3">
         <Filter className="w-4 h-4 text-gray-400" />
         {FILTERS.map(f => (
           <button
             key={f.value}
             onClick={() => { setFilter(f.value); setPage(1); }}
             className={cn(
-              'px-3 py-1.5 rounded-lg text-xs font-700 transition-colors',
+              'px-3 py-2 rounded-lg text-xs font-700 transition-colors',
               filter === f.value
                 ? 'bg-navy-500 text-white'
                 : 'bg-surface-secondary text-gray-600 hover:bg-gray-100'
@@ -86,7 +86,7 @@ export default function LeadsTable() {
             {f.label}
           </button>
         ))}
-        <span className="ml-auto text-sm text-gray-400">{total} total</span>
+        <span className="w-full sm:w-auto sm:ml-auto text-xs sm:text-sm text-gray-400">{total} total</span>
       </div>
 
       {/* Table */}
@@ -97,7 +97,7 @@ export default function LeadsTable() {
       ) : (
         <div className="divide-y divide-surface-border">
           {leads.map(lead => (
-            <div key={lead.id} className={cn('px-6 py-4', !lead.is_read && 'bg-gold-50/40')}>
+            <div key={lead.id} className={cn('px-4 sm:px-6 py-4', !lead.is_read && 'bg-gold-50/40')}>
               <div className="flex flex-wrap items-start gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -122,10 +122,10 @@ export default function LeadsTable() {
                   </div>
                 </div>
 
-                <div className="flex gap-2 shrink-0">
+                <div className="w-full sm:w-auto grid grid-cols-2 min-[420px]:grid-cols-3 sm:flex gap-2 sm:shrink-0">
                   <a
                     href={`tel:${lead.phone}`}
-                    className="flex items-center gap-1 bg-navy-50 hover:bg-navy-100 text-navy-700 px-3 py-2 rounded-lg text-xs font-700 transition-colors"
+                    className="flex items-center justify-center gap-1 bg-navy-50 hover:bg-navy-100 text-navy-700 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-700 transition-colors"
                   >
                     <Phone className="w-3.5 h-3.5" />
                     Call
@@ -133,7 +133,7 @@ export default function LeadsTable() {
                   <a
                     href={`${WHATSAPP_URL}?text=${encodeURIComponent(`Hi ${lead.name}! Thank you for contacting us. How can I help you?`)}`}
                     target="_blank" rel="noopener noreferrer"
-                    className="flex items-center gap-1 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2 rounded-lg text-xs font-700 transition-colors"
+                    className="flex items-center justify-center gap-1 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-700 transition-colors"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
                     WhatsApp
@@ -141,7 +141,7 @@ export default function LeadsTable() {
                   {!lead.is_read && (
                     <button
                       onClick={() => markRead(lead.id)}
-                      className="flex items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-xs font-700 transition-colors"
+                      className="col-span-2 min-[420px]:col-span-1 flex items-center justify-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-700 transition-colors"
                     >
                       <Check className="w-3.5 h-3.5" />
                       Mark Read
@@ -156,7 +156,7 @@ export default function LeadsTable() {
 
       {/* Pagination */}
       {total > 15 && (
-        <div className="px-6 py-4 border-t border-surface-border flex justify-between items-center">
+        <div className="px-4 sm:px-6 py-4 border-t border-surface-border flex justify-between items-center gap-3">
           <button disabled={page <= 1} onClick={() => setPage(p => p - 1)}
             className="text-sm text-navy-500 hover:text-navy-700 disabled:opacity-40 font-600">
             ← Prev

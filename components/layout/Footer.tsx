@@ -31,26 +31,26 @@ const companyLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-navy-800 text-white">
+    <footer className="bg-navy-800 text-white pb-[calc(4.5rem+env(safe-area-inset-bottom))] md:pb-0">
       {/* Top CTA Strip */}
       <div className="bg-gold-500 py-4">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="font-heading font-700 text-navy-800 text-lg">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+          <p className="font-heading font-700 text-navy-800 text-base sm:text-lg">
             Ready to find your perfect property in Lahore?
           </p>
-          <div className="flex gap-3">
+          <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:flex gap-3 w-full sm:w-auto">
             <a
               href={`${WHATSAPP_URL}?text=${encodeURIComponent(WHATSAPP_GENERAL_MSG)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
               WhatsApp Now
             </a>
             <a
               href={CALL_URL}
-              className="flex items-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center justify-center gap-2 bg-navy-700 hover:bg-navy-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium transition-colors"
             >
               <Phone className="w-4 h-4" />
               Call Now
@@ -60,11 +60,11 @@ export default function Footer() {
       </div>
 
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-4 py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-4 py-10 sm:py-14">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10">
 
           {/* Brand Column */}
-          <div className="lg:col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 bg-gold-500 rounded-lg flex items-center justify-center">
                 <Building2 className="w-6 h-6 text-white" />
@@ -165,7 +165,7 @@ export default function Footer() {
 
       {/* Bottom Bar */}
       <div className="border-t border-navy-600 py-5">
-        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-white/40 text-sm">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left text-white/40 text-xs sm:text-sm">
           <p>© {new Date().getFullYear()} {AGENT_NAME_EN} — All Rights Reserved</p>
           <p>Serving Lahore with Integrity 🇵🇰</p>
         </div>
