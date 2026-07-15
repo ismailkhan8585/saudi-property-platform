@@ -1,74 +1,26 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans, DM_Sans, Noto_Nastaliq_Urdu, JetBrains_Mono } from 'next/font/google';
-import { AGENT_NAME_EN, TAGLINE_EN, APP_URL } from '@/lib/constants';
+import { cookies } from 'next/headers';
 import { Toaster } from '@/components/ui/sonner';
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['600', '700', '800'],
-  variable: '--font-jakarta',
-  display: 'swap',
-});
-
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-});
-
-const notoUrdu = Noto_Nastaliq_Urdu({
-  subsets: ['arabic'],
-  weight: ['400', '700'],
-  variable: '--font-noto-urdu',
-  display: 'swap',
-});
-
-const jetbrains = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['500'],
-  variable: '--font-jetbrains',
-  display: 'swap',
-});
+import { LocaleProvider } from '@/components/providers/LocaleProvider';
+import { isLocale } from '@/lib/i18n';
+import { APP_URL } from '@/lib/constants';
+import { getContactConfig } from '@/lib/contact';
+import { ContactProvider } from '@/components/providers/ContactProvider';
+import WhatsAppButton from '@/components/layout/WhatsAppButton';
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
-  title: {
-    default: `${AGENT_NAME_EN} — ${TAGLINE_EN}`,
-    template: `%s | ${AGENT_NAME_EN}`,
-  },
-  description:
-    'Find houses, plots, apartments & commercial properties for sale and rent across all major Lahore societies. Trusted property dealer in Lahore.',
-  keywords: [
-    'property for sale Lahore',
-    'house for rent Lahore',
-    'plot for sale DHA Lahore',
-    'apartment Bahria Town',
-    'property dealer Lahore',
-    'real estate Lahore',
-    'Zameen Lahore',
-  ],
-  openGraph: {
-    type: 'website',
-    locale: 'en_PK',
-    siteName: AGENT_NAME_EN,
-    images: [{ url: '/og-default.jpg', width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    images: ['/og-default.jpg'],
-  },
+  title: { default: 'دار العقار | Dar Al Aqar', template: '%s | دار العقار' },
+  description: 'منصة عقارية ثنائية اللغة للبحث عن العقارات في المملكة العربية السعودية | Bilingual Saudi property search platform.',
+  keywords: ['عقارات السعودية', 'عقارات الرياض', 'عقار جدة', 'Saudi property', 'Riyadh real estate'],
+  openGraph: { type: 'website', locale: 'ar_SA', alternateLocale: 'en_SA', siteName: 'دار العقار | Dar Al Aqar' },
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" className={`${jakarta.variable} ${dmSans.variable} ${notoUrdu.variable} ${jetbrains.variable}`}>
-      <body className="font-body bg-surface-secondary text-foreground antialiased">
-        {children}
-        <Toaster richColors position="top-right" />
-      </body>
-    </html>
-  );
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const value = (await cookies()).get('locale')?.value;
+  const locale = isLocale(value) ? value : 'ar';
+  const contact = getContactConfig();
+  return <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}><body className="bg-surface-secondary text-foreground antialiased"><LocaleProvider locale={locale}><ContactProvider value={contact}>{children}<WhatsAppButton/><Toaster richColors position={locale === 'ar' ? 'top-left' : 'top-right'} /></ContactProvider></LocaleProvider></body></html>;
 }

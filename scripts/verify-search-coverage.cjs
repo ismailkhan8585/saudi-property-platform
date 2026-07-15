@@ -1,0 +1,2 @@
+const{auditCoverage,writeReport}=require('./search-coverage-core.cjs');
+auditCoverage().then(report=>{writeReport(report);console.log(JSON.stringify({contract:report.contract,counts:report.counts,missing:report.missing.slice(0,25)},null,2));if(report.counts.missing||report.counts.translationErrors||report.counts.relationshipErrors)process.exitCode=1}).catch(error=>{console.error(error instanceof Error?error.message:error);process.exitCode=1});

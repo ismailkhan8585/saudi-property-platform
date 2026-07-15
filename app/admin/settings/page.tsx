@@ -88,25 +88,25 @@ export default function SettingsPage() {
               <h2 className="font-heading font-700 text-navy-700 text-base">Agent Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Agent Name (English)</label><input className={inputCls} value={form.agentNameEn} onChange={e => set('agentNameEn', e.target.value)} /></div>
-                <div><label className={labelCls}>Agent Name (Urdu)</label><input className={cn(inputCls, 'font-urdu text-right')} dir="rtl" value={form.agentNameUr} onChange={e => set('agentNameUr', e.target.value)} /></div>
+                <div><label className={labelCls}>Agent Name (Arabic)</label><input className={cn(inputCls, 'font-urdu text-right')} dir="rtl" value={form.agentNameUr} onChange={e => set('agentNameUr', e.target.value)} /></div>
                 <div><label className={labelCls}>Tagline (English)</label><input className={inputCls} value={form.taglineEn} onChange={e => set('taglineEn', e.target.value)} /></div>
-                <div><label className={labelCls}>Tagline (Urdu)</label><input className={cn(inputCls, 'font-urdu text-right')} dir="rtl" value={form.taglineUr} onChange={e => set('taglineUr', e.target.value)} /></div>
+                <div><label className={labelCls}>Tagline (Arabic)</label><input className={cn(inputCls, 'font-urdu text-right')} dir="rtl" value={form.taglineUr} onChange={e => set('taglineUr', e.target.value)} /></div>
               </div>
               <div><label className={labelCls}>Agent Photo URL</label><input className={inputCls} value={form.agentPhoto} onChange={e => set('agentPhoto', e.target.value)} placeholder="https://res.cloudinary.com/..." /></div>
               <div><label className={labelCls}>Bio (English)</label><textarea className={cn(inputCls, 'resize-none')} rows={4} value={form.agentBioEn} onChange={e => set('agentBioEn', e.target.value)} /></div>
-              <div><label className={labelCls}>Bio (Urdu)</label><textarea className={cn(inputCls, 'resize-none font-urdu text-right')} dir="rtl" rows={3} value={form.agentBioUr} onChange={e => set('agentBioUr', e.target.value)} /></div>
+              <div><label className={labelCls}>Bio (Arabic)</label><textarea className={cn(inputCls, 'resize-none font-urdu text-right')} dir="rtl" rows={3} value={form.agentBioUr} onChange={e => set('agentBioUr', e.target.value)} /></div>
             </div>
 
             {/* Contact */}
             <div className="bg-white rounded-2xl p-4 sm:p-6 border border-surface-border space-y-4">
               <h2 className="font-heading font-700 text-navy-700 text-base">Contact Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label className={labelCls}>Phone Number</label><input className={inputCls} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+923029154977" /></div>
-                <div><label className={labelCls}>WhatsApp Number</label><input className={inputCls} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="923029154977" /></div>
+                <div><label className={labelCls}>Phone Number</label><input className={inputCls} value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+966 11 000 0000" /></div>
+                <div><label className={labelCls}>WhatsApp Number</label><input className={inputCls} value={form.whatsapp} onChange={e => set('whatsapp', e.target.value)} placeholder="966500000000" /></div>
                 <div><label className={labelCls}>Email</label><input className={inputCls} type="email" value={form.email} onChange={e => set('email', e.target.value)} /></div>
               </div>
               <div><label className={labelCls}>Office Address (English)</label><input className={inputCls} value={form.officeAddressEn} onChange={e => set('officeAddressEn', e.target.value)} /></div>
-              <div><label className={labelCls}>Office Address (Urdu)</label><input className={cn(inputCls, 'font-urdu text-right')} dir="rtl" value={form.officeAddressUr} onChange={e => set('officeAddressUr', e.target.value)} /></div>
+              <div><label className={labelCls}>Office Address (Arabic)</label><input className={cn(inputCls, 'font-urdu text-right')} dir="rtl" value={form.officeAddressUr} onChange={e => set('officeAddressUr', e.target.value)} /></div>
             </div>
 
             {/* Stats */}

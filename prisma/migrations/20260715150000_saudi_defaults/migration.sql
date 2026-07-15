@@ -1,0 +1,3 @@
+ALTER TABLE "properties" ALTER COLUMN "city" SET DEFAULT 'Riyadh';
+ALTER TABLE "site_settings" ALTER COLUMN "phone" SET DEFAULT '+966110000000';
+ALTER TABLE "site_settings" ALTER COLUMN "whatsapp" SET DEFAULT '966500000000';

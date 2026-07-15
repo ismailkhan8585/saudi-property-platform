@@ -10,8 +10,12 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "prisma:generate": "prisma generate",
-    "verify:data": "node scripts/verify-database.cjs",
-    "seed:societies": "node scripts/seed-missing-societies.cjs"
+    "verify:data": "node -r ./scripts/load-env.cjs scripts/verify-database.cjs",
+    "seed:saudi": "node -r ./scripts/load-env.cjs scripts/seed-saudi.cjs",
+    "audit:search-coverage": "node -r ./scripts/load-env.cjs scripts/audit-search-coverage.cjs",
+    "seed:search-coverage": "node -r ./scripts/load-env.cjs scripts/seed-search-coverage.cjs",
+    "seed:societies": "npm run audit:search-coverage && npm run seed:search-coverage",
+    "verify:search-coverage": "node -r ./scripts/load-env.cjs scripts/verify-search-coverage.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -1,0 +1,70 @@
+const { PrismaClient } = require('@prisma/client');
+const { z } = require('zod');
+const prisma = new PrismaClient({datasourceUrl:process.env.DATABASE_URL});
+
+const locationSchema = z.object({ slug: z.string().regex(/^[a-z0-9-]+$/), nameAr: z.string().min(2), nameEn: z.string().min(2), type: z.enum(['COUNTRY','REGION','CITY','DISTRICT']), parent: z.string().nullable(), aliasesAr: z.array(z.string()), aliasesEn: z.array(z.string()), order: z.number().int().nonnegative() });
+const propertySchema = z.object({ ref: z.string().regex(/^SA-DEMO-\d{4}$/), slug: z.string(), titleAr: z.string().min(5), titleEn: z.string().min(5), descriptionAr: z.string().min(20), descriptionEn: z.string().min(20), category: z.enum(['HOUSE','APARTMENT','PLOT','COMMERCIAL','FARMHOUSE','VILLA','ROOM','PORTION','OFFICE','SHOP','WAREHOUSE']), purpose: z.enum(['SALE','RENT','DAILY_RENT','COMMERCIAL_LEASE']), amount: z.number().positive(), size: z.number().positive(), beds: z.number().int().nullable(), baths: z.number().int().nullable(), city: z.string(), district: z.string(), addressEn: z.string(), addressAr: z.string(), furnished: z.enum(['UNFURNISHED','SEMI_FURNISHED','FURNISHED']), age: z.number().int().nonnegative(), amenities: z.array(z.string()), featured: z.boolean(), photos: z.array(z.string().url()).min(1) });
+
+const regions = [
+  ['riyadh-region','منطقة الرياض','Riyadh Region',['الرياض'],['Riyadh']], ['makkah-region','منطقة مكة المكرمة','Makkah Region',['مكة'],['Mecca']],
+  ['madinah-region','منطقة المدينة المنورة','Madinah Region',['المدينة'],['Medina']], ['eastern-region','المنطقة الشرقية','Eastern Province',['الشرقية'],['Eastern Region']],
+  ['qassim-region','منطقة القصيم','Al-Qassim Region',['القصيم'],['Qassim']], ['asir-region','منطقة عسير','Asir Region',['عسير'],['Aseer']],
+  ['tabuk-region','منطقة تبوك','Tabuk Region',['تبوك'],['Tabouk']], ['hail-region','منطقة حائل','Hail Region',['حائل'],['Haʼil']],
+  ['northern-borders-region','منطقة الحدود الشمالية','Northern Borders Region',['الحدود الشمالية'],['Northern Border']], ['jazan-region','منطقة جازان','Jazan Region',['جازان'],['Jizan']],
+  ['najran-region','منطقة نجران','Najran Region',['نجران'],['Nejran']], ['bahah-region','منطقة الباحة','Al-Bahah Region',['الباحة'],['Baha']],
+  ['jawf-region','منطقة الجوف','Al-Jawf Region',['الجوف'],['Jawf']]
+];
+const cities = [
+  ['riyadh','الرياض','Riyadh','riyadh-region',['الرياض العاصمة'],['Ar Riyadh']], ['jeddah','جدة','Jeddah','makkah-region',['جده'],['Jidda']], ['makkah','مكة المكرمة','Makkah','makkah-region',['مكة'],['Mecca']], ['taif','الطائف','Taif','makkah-region',[],['At Taif']],
+  ['madinah','المدينة المنورة','Madinah','madinah-region',['المدينة'],['Medina']], ['dammam','الدمام','Dammam','eastern-region',[],['Ad Dammam']], ['khobar','الخبر','Al Khobar','eastern-region',[],['Khobar']], ['dhahran','الظهران','Dhahran','eastern-region',[],['Zahran']], ['hofuf','الهفوف','Al Hofuf','eastern-region',['الأحساء'],['Al Ahsa','Hofuf']], ['jubail','الجبيل','Jubail','eastern-region',[],['Al Jubail']],
+  ['buraydah','بريدة','Buraydah','qassim-region',[],['Buraidah']], ['unaizah','عنيزة','Unaizah','qassim-region',[],['Unayzah']], ['abha','أبها','Abha','asir-region',[],['Abha']], ['khamis-mushait','خميس مشيط','Khamis Mushait','asir-region',[],['Khamis Mushayt']],
+  ['tabuk','تبوك','Tabuk','tabuk-region',[],['Tabouk']], ['hail','حائل','Hail','hail-region',[],['Haʼil']], ['arar','عرعر','Arar','northern-borders-region',[],['Arar']], ['jazan','جازان','Jazan','jazan-region',[],['Jizan']], ['najran','نجران','Najran','najran-region',[],['Nejran']], ['al-bahah','الباحة','Al Bahah','bahah-region',[],['Baha']], ['sakaka','سكاكا','Sakaka','jawf-region',[],['Sakakah']]
+];
+const districts = [
+  ['olaya','العليا','Al Olaya','riyadh'],['malqa','الملقا','Al Malqa','riyadh'],['narjis','النرجس','Al Narjis','riyadh'],['rawdah-jeddah','الروضة','Al Rawdah','jeddah'],['zahra-jeddah','الزهراء','Al Zahra','jeddah'],['obhur','أبحر الشمالية','North Obhur','jeddah'],['awali-makkah','العوالي','Al Awali','makkah'],['shafa-taif','الشفا','Al Shafa','taif'],['aridh-madinah','العريض','Al Aridh','madinah'],['shati-dammam','الشاطئ','Al Shati','dammam'],['aqrabiyah','العقربية','Al Aqrabiyah','khobar'],['doha-dhahran','الدوحة الجنوبية','South Doha','dhahran'],['khalidiyah-hofuf','الخالدية','Al Khalidiyah','hofuf'],['fanateer','الفناتير','Al Fanateer','jubail'],['iskan-buraydah','الإسكان','Al Iskan','buraydah'],['fakhriyah-unaizah','الفاخرية','Al Fakhriyah','unaizah'],['mahalah-abha','المحالة','Al Mahalah','abha'],['raqi-khamis','الراقي','Al Raqi','khamis-mushait'],['muruj-tabuk','المروج','Al Muruj','tabuk'],['naqrah-hail','النقرة','Al Naqrah','hail'],['muhammadiyah-arar','المحمدية','Al Muhammadiyah','arar'],['rawdah-jazan','الروضة','Al Rawdah','jazan'],['fahd-najran','الفهد','Al Fahd','najran'],['shahbah-bahah','الشهباء','Al Shahbah','al-bahah'],['shalhub-sakaka','الشلهوب','Al Shalhub','sakaka']
+];
+const locations = [
+  { slug:'saudi-arabia', nameAr:'المملكة العربية السعودية', nameEn:'Saudi Arabia', type:'COUNTRY', parent:null, aliasesAr:['السعودية'], aliasesEn:['KSA','Saudi'], order:0 },
+  ...regions.map((r,i)=>({slug:r[0],nameAr:r[1],nameEn:r[2],type:'REGION',parent:'saudi-arabia',aliasesAr:r[3],aliasesEn:r[4],order:i+1})),
+  ...cities.map((r,i)=>({slug:r[0],nameAr:r[1],nameEn:r[2],type:'CITY',parent:r[3],aliasesAr:r[4],aliasesEn:r[5],order:i+1})),
+  ...districts.map((r,i)=>({slug:r[0],nameAr:r[1],nameEn:r[2],type:'DISTRICT',parent:r[3],aliasesAr:[],aliasesEn:[],order:i+1}))
+].map(v=>locationSchema.parse(v));
+
+const photos = {
+  home:['https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1200'],
+  apartment:['https://images.pexels.com/photos/1918291/pexels-photo-1918291.jpeg?auto=compress&cs=tinysrgb&w=1200'],
+  office:['https://images.pexels.com/photos/1170412/pexels-photo-1170412.jpeg?auto=compress&cs=tinysrgb&w=1200'],
+  land:['https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=1200']
+};
+const rawProperties = [
+ ['0001','villa-al-malqa','فيلا تجريبية عائلية في الملقا','Demo family villa in Al Malqa','VILLA','SALE',4200000,420,5,6,'Riyadh','malqa','حي الملقا، الرياض','Al Malqa, Riyadh','UNFURNISHED',2,['parking','security','garden'],true,photos.home],
+ ['0002','apartment-olaya','شقة تجريبية مفروشة في العليا','Demo furnished apartment in Al Olaya','APARTMENT','RENT',9500,145,3,3,'Riyadh','olaya','حي العليا، الرياض','Al Olaya, Riyadh','FURNISHED',4,['parking','elevator','air_conditioning'],true,photos.apartment],
+ ['0003','house-narjis','منزل تجريبي حديث في النرجس','Demo modern house in Al Narjis','HOUSE','SALE',2350000,310,4,5,'Riyadh','narjis','حي النرجس، الرياض','Al Narjis, Riyadh','SEMI_FURNISHED',1,['parking','garden','kitchen'],false,photos.home],
+ ['0004','residential-land-obhur','أرض سكنية تجريبية في أبحر الشمالية','Demo residential land in North Obhur','PLOT','SALE',1800000,600,null,null,'Jeddah','obhur','أبحر الشمالية، جدة','North Obhur, Jeddah','UNFURNISHED',0,[],true,photos.land],
+ ['0005','furnished-apartment-rawdah','شقة تجريبية مفروشة في الروضة','Demo furnished apartment in Al Rawdah','APARTMENT','DAILY_RENT',550,110,2,2,'Jeddah','rawdah-jeddah','حي الروضة، جدة','Al Rawdah, Jeddah','FURNISHED',3,['elevator','air_conditioning','parking'],false,photos.apartment],
+ ['0006','office-aqrabiyah','مكتب تجريبي مجهز في العقربية','Demo fitted office in Al Aqrabiyah','OFFICE','COMMERCIAL_LEASE',120000,210,null,2,'Al Khobar','aqrabiyah','العقربية، الخبر','Al Aqrabiyah, Al Khobar','FURNISHED',5,['parking','security','elevator'],true,photos.office],
+ ['0007','shop-shati-dammam','محل تجريبي في حي الشاطئ','Demo shop in Al Shati','SHOP','COMMERCIAL_LEASE',85000,95,null,1,'Dammam','shati-dammam','حي الشاطئ، الدمام','Al Shati, Dammam','UNFURNISHED',6,['parking','air_conditioning'],false,photos.office],
+ ['0008','warehouse-fanateer','مستودع تجريبي في الفناتير','Demo warehouse in Al Fanateer','WAREHOUSE','RENT',18000,850,null,2,'Jubail','fanateer','الفناتير، الجبيل','Al Fanateer, Jubail','UNFURNISHED',8,['security','parking'],false,photos.office],
+ ['0009','commercial-land-tabuk','أرض تجارية تجريبية في المروج','Demo commercial land in Al Muruj','COMMERCIAL','SALE',980000,750,null,null,'Tabuk','muruj-tabuk','حي المروج، تبوك','Al Muruj, Tabuk','UNFURNISHED',0,[],false,photos.land],
+ ['0010','farm-abha','مزرعة تجريبية قرب أبها','Demo farm near Abha','FARMHOUSE','SALE',1600000,4200,3,3,'Abha','mahalah-abha','المحالة، أبها','Al Mahalah, Abha','UNFURNISHED',10,['parking','garden','water'],false,photos.home],
+ ['0011','compound-madinah','مجمع سكني تجريبي في العريض','Demo residential compound in Al Aridh','PORTION','RENT',22000,900,10,12,'Madinah','aridh-madinah','حي العريض، المدينة المنورة','Al Aridh, Madinah','SEMI_FURNISHED',7,['parking','security','garden'],true,photos.home],
+ ['0012','apartment-buraydah','شقة تجريبية في الإسكان','Demo apartment in Al Iskan','APARTMENT','RENT',3200,130,3,2,'Buraydah','iskan-buraydah','حي الإسكان، بريدة','Al Iskan, Buraydah','UNFURNISHED',5,['parking','elevator'],false,photos.apartment],
+ ['0013','apartment-awali-makkah','شقة تجريبية حديثة في العوالي','Demo modern apartment in Al Awali','APARTMENT','SALE',780000,155,3,3,'Makkah','awali-makkah','حي العوالي، مكة المكرمة','Al Awali, Makkah','SEMI_FURNISHED',2,['parking','elevator','air_conditioning'],true,photos.apartment],
+ ['0014','commercial-building-dammam','مبنى تجاري تجريبي في الشاطئ','Demo commercial building in Al Shati','COMMERCIAL','SALE',6800000,1450,null,8,'Dammam','shati-dammam','حي الشاطئ، الدمام','Al Shati, Dammam','UNFURNISHED',6,['parking','security','elevator'],true,photos.office],
+ ['0015','villa-aridh-madinah','فيلا تجريبية في حي العريض','Demo villa in Al Aridh','VILLA','SALE',1950000,360,5,5,'Madinah','aridh-madinah','حي العريض، المدينة المنورة','Al Aridh, Madinah','UNFURNISHED',3,['parking','garden','security'],false,photos.home],
+ ['0016','house-zahra-jeddah','منزل تجريبي للإيجار في الزهراء','Demo rental house in Al Zahra','HOUSE','RENT',7800,285,4,4,'Jeddah','zahra-jeddah','حي الزهراء، جدة','Al Zahra, Jeddah','SEMI_FURNISHED',5,['parking','garden','air_conditioning'],true,photos.home],
+ ['0017','villa-awali-makkah-rent','فيلا تجريبية للإيجار في العوالي','Demo rental villa in Al Awali','VILLA','RENT',11000,390,5,6,'Makkah','awali-makkah','حي العوالي، مكة المكرمة','Al Awali, Makkah','UNFURNISHED',4,['parking','garden','security'],false,photos.home],
+ ['0018','office-shati-dammam-rent','مكتب تجريبي للإيجار في الشاطئ','Demo office for rent in Al Shati','OFFICE','RENT',14500,240,null,3,'Dammam','shati-dammam','حي الشاطئ، الدمام','Al Shati, Dammam','FURNISHED',3,['parking','security','elevator','air_conditioning'],true,photos.office],
+ ['0019','shop-aqrabiyah-rent','محل تجريبي للإيجار في العقربية','Demo shop for rent in Al Aqrabiyah','SHOP','RENT',9000,120,null,2,'Al Khobar','aqrabiyah','حي العقربية، الخبر','Al Aqrabiyah, Al Khobar','UNFURNISHED',7,['parking','air_conditioning'],false,photos.office],
+ ['0020','warehouse-olaya-rent','مستودع تجريبي للإيجار في الرياض','Demo warehouse for rent in Riyadh','WAREHOUSE','RENT',21000,980,null,2,'Riyadh','olaya','حي العليا، الرياض','Al Olaya, Riyadh','UNFURNISHED',9,['parking','security'],false,photos.office]
+];
+const properties = rawProperties.map(p=>propertySchema.parse({ref:`SA-DEMO-${p[0]}`,slug:p[1],titleAr:p[2],titleEn:p[3],descriptionAr:`إعلان تجريبي لأغراض اختبار المنصة فقط. ${p[2]} بمواصفات متنوعة وبيانات غير حقيقية.`,descriptionEn:`Demo listing provided only for testing the platform. ${p[3]} with varied, fictional specifications.`,category:p[4],purpose:p[5],amount:p[6],size:p[7],beds:p[8],baths:p[9],city:p[10],district:p[11],addressAr:p[12],addressEn:p[13],furnished:p[14],age:p[15],amenities:p[16],featured:p[17],photos:p[18]}));
+
+async function main() {
+  await prisma.$transaction(async tx => {
+    for (const l of locations) await tx.locations.upsert({ where:{slug:l.slug}, update:{name_ar:l.nameAr,name_en:l.nameEn,type:l.type,parent_id:l.parent?`loc:${l.parent}`:null,aliases_ar:l.aliasesAr,aliases_en:l.aliasesEn,active:true,display_order:l.order}, create:{id:`loc:${l.slug}`,slug:l.slug,name_ar:l.nameAr,name_en:l.nameEn,type:l.type,parent_id:l.parent?`loc:${l.parent}`:null,aliases_ar:l.aliasesAr,aliases_en:l.aliasesEn,display_order:l.order} });
+    for (const p of properties) await tx.properties.upsert({ where:{property_id:p.ref}, update:{slug:p.slug,title:p.titleEn,title_ar:p.titleAr,description:p.descriptionEn,description_ar:p.descriptionAr,purpose:p.purpose,category:p.category,price:p.purpose==='SALE'?p.amount:null,rent_price:p.purpose!=='SALE'?p.amount:null,size:p.size,size_unit:'SQM',bedrooms:p.beds,bathrooms:p.baths,city:p.city,society:p.city,area:p.addressEn,address:p.addressEn,address_ar:p.addressAr,location_id:`loc:${p.district}`,furnished:p.furnished,property_age:p.age,amenities:p.amenities,photos:p.photos,featured:p.featured,is_demo:true,is_active:true,published_at:new Date(),search_keywords_ar:[p.titleAr,p.addressAr],search_keywords_en:[p.titleEn,p.addressEn],updated_at:new Date()}, create:{id:`demo:${p.ref}`,property_id:p.ref,slug:p.slug,title:p.titleEn,title_ar:p.titleAr,description:p.descriptionEn,description_ar:p.descriptionAr,purpose:p.purpose,category:p.category,price:p.purpose==='SALE'?p.amount:null,rent_price:p.purpose!=='SALE'?p.amount:null,size:p.size,size_unit:'SQM',bedrooms:p.beds,bathrooms:p.baths,city:p.city,society:p.city,area:p.addressEn,address:p.addressEn,address_ar:p.addressAr,location_id:`loc:${p.district}`,furnished:p.furnished,property_age:p.age,amenities:p.amenities,photos:p.photos,featured:p.featured,is_demo:true,is_active:true,published_at:new Date(),search_keywords_ar:[p.titleAr,p.addressAr],search_keywords_en:[p.titleEn,p.addressEn],updated_at:new Date()} });
+  }, { maxWait:20000, timeout:120000 });
+  console.log(JSON.stringify({locations:locations.length,demoProperties:properties.length,idempotent:true},null,2));
+}
+main().catch(e=>{console.error(e instanceof Error?e.message:e);process.exitCode=1}).finally(()=>prisma.$disconnect());

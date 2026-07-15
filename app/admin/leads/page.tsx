@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/prisma';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import LeadsTable from '@/components/admin/LeadsTable';
+import { getContactConfig } from '@/lib/contact';
 
 async function getUnreadCount() {
   return prisma.leads.count({ where: { is_read: false } });
@@ -26,7 +27,7 @@ export default async function LeadsPage() {
               </div>
             )}
           </div>
-          <LeadsTable />
+          <LeadsTable whatsappNumber={getContactConfig().whatsappNumber} />
         </div>
       </div>
     </div>

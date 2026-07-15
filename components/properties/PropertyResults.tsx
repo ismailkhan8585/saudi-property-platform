@@ -1,5 +1,5 @@
 import PropertyGrid from '@/components/properties/PropertyGrid';
-import { getPublicProperties } from '@/lib/data/public';
+import { getPublicProperties, getSearchAlternatives } from '@/lib/data/public';
 import { parsePublicPropertyQuery, serializePublicPropertyQuery, type PageSearchParams } from '@/lib/property-query';
 import type { PropertyCategory, Purpose } from '@prisma/client';
 
@@ -16,11 +16,13 @@ export default async function PropertyResults({ searchParams = {}, initialPurpos
   });
   const queryString = serializePublicPropertyQuery(query);
   const initialData = await getPublicProperties(query);
+  const alternatives = initialData.total === 0 ? await getSearchAlternatives(query) : [];
 
   return (
     <PropertyGrid
       key={queryString}
       initialData={initialData}
+      alternatives={alternatives}
     />
   );
 }

@@ -1,126 +1,106 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { ChevronLeft, ChevronRight, SearchX } from 'lucide-react';
 import PropertyCard from './PropertyCard';
-import { ChevronLeft, ChevronRight, LayoutGrid, List } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import type { PaginatedProperties } from '@/lib/types';
+import type { PaginatedProperties, RelaxedSearchFilter, SearchAlternativeGroup } from '@/lib/types';
+import { useLocale } from '@/components/providers/LocaleProvider';
+import { formatNumber } from '@/lib/i18n';
 
 interface Props {
   initialData: PaginatedProperties;
+  alternatives?: SearchAlternativeGroup[];
 }
 
-export default function PropertyGrid({ initialData }: Props) {
+export default function PropertyGrid({ initialData, alternatives = [] }: Props) {
+  const { dict, locale } = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
+  const path = usePathname();
   const searchParams = useSearchParams();
-  const [isPending, startTransition] = useTransition();
-  const [view, setView] = useState<'grid' | 'list'>('grid');
-  const { properties, total, page, totalPages } = initialData;
-  const sortParam = searchParams.get('sort');
-  const sort = sortParam === 'price_asc' || sortParam === 'price_desc' ? sortParam : 'newest';
+  const [pending, startTransition] = useTransition();
 
-  function updateUrl(updates: Record<string, string | number>) {
+  function setFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
-    for (const [key, value] of Object.entries(updates)) params.set(key, String(value));
-    startTransition(() => router.push(`${pathname}?${params.toString()}`, { scroll: false }));
+    params.set(key, value);
+    if (key !== 'page') params.set('page', '1');
+    startTransition(() => router.push(`${path}?${params}`));
   }
 
-  function goToPage(nextPage: number) {
-    if (nextPage === page || nextPage < 1 || nextPage > totalPages) return;
-    updateUrl({ page: nextPage });
-  }
-
-  const visiblePageCount = Math.min(totalPages, 5);
-  const firstVisiblePage = Math.max(1, Math.min(page - 2, totalPages - visiblePageCount + 1));
-  const visiblePages = Array.from({ length: visiblePageCount }, (_, index) => firstVisiblePage + index);
+  const relaxedLabels: Record<RelaxedSearchFilter, string> = {
+    amenities: dict.search.relaxAmenities,
+    furnished: dict.search.relaxFurnishing,
+    bathrooms: dict.search.relaxBathrooms,
+    bedrooms: dict.search.relaxBedrooms,
+    area: dict.search.relaxArea,
+    price: dict.search.relaxPrice,
+  };
+  const groupLabels = {
+    sameDistrict: dict.search.sameDistrict,
+    sameCity: dict.search.sameCity,
+    sameRegion: dict.search.sameRegion,
+    suggested: dict.search.optionsYouMayLike,
+  };
+  const data = initialData;
 
   return (
-    <div className="flex-1 min-w-0" aria-busy={isPending}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5 pb-4 border-b border-surface-border">
-        <p className="text-sm text-gray-500">
-          Showing <span className="font-600 text-navy-700">{properties.length}</span> of{' '}
-          <span className="font-600 text-navy-700">{total}</span> properties
-        </p>
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-          <select
-            aria-label="Sort properties"
-            value={sort}
-            disabled={isPending}
-            onChange={event => updateUrl({ sort: event.target.value, page: 1 })}
-            className="min-w-0 flex-1 sm:flex-none border border-surface-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-navy-500 disabled:opacity-60"
-          >
-            <option value="newest">Newest First</option>
-            <option value="price_asc">Price: Low to High</option>
-            <option value="price_desc">Price: High to Low</option>
-          </select>
-          <div className="flex gap-1 border border-surface-border rounded-lg overflow-hidden">
-            <button aria-label="Grid view" onClick={() => setView('grid')} className={cn('p-2', view === 'grid' ? 'bg-navy-500 text-white' : 'text-gray-500 hover:bg-gray-100')}>
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button aria-label="List view" onClick={() => setView('list')} className={cn('p-2', view === 'list' ? 'bg-navy-500 text-white' : 'text-gray-500 hover:bg-gray-100')}>
-              <List className="w-4 h-4" />
-            </button>
-          </div>
+    <section className="min-w-0 flex-1" aria-busy={pending}>
+      <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
+        <p className="font-bold text-navy-800" aria-live="polite">{formatNumber(data.total, locale)} {dict.search.results}</p>
+        <select
+          value={searchParams.get('sort') || 'newest'}
+          onChange={(event) => setFilter('sort', event.target.value)}
+          aria-label={dict.search.sort}
+          className="min-h-11 max-w-[55%] rounded-xl border bg-white px-3 py-2 text-sm sm:max-w-none"
+        >
+          <option value="relevance">{dict.search.relevance}</option>
+          <option value="newest">{dict.search.newest}</option>
+          <option value="price_asc">{dict.search.priceAsc}</option>
+          <option value="price_desc">{dict.search.priceDesc}</option>
+          <option value="area_desc">{dict.search.areaDesc}</option>
+        </select>
+      </div>
+
+      {data.properties.length ? (
+        <div className={`grid gap-5 transition motion-reduce:transition-none ${pending ? 'opacity-60' : ''} sm:grid-cols-2 xl:grid-cols-3`}>
+          {data.properties.map((property, index) => <PropertyCard key={property.id} property={property} priority={index < 2} />)}
         </div>
-      </div>
-
-      <div className={cn('transition-opacity duration-200', isPending && 'opacity-60')}>
-        {properties.length === 0 ? (
-          <div className="text-center py-14 sm:py-20 px-2">
-            <p className="text-gray-400 text-lg mb-2">No properties found</p>
-            <p className="text-gray-400 text-sm">Try adjusting your filters or WhatsApp us â€” we may have unlisted properties!</p>
+      ) : (
+        <>
+          <div className="rounded-2xl border bg-white px-6 py-10 text-center">
+            <SearchX className="mx-auto h-12 w-12 text-gold-500" />
+            <h2 className="mt-4 text-xl font-bold">{dict.search.noResults}</h2>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-7 text-gray-500">{dict.search.alternativesHint}</p>
           </div>
-        ) : (
-          <div className={cn(
-            'grid gap-5',
-            view === 'grid' ? 'grid-cols-1 md:grid-cols-2 xl:grid-cols-3' : 'grid-cols-1',
-          )}>
-            {properties.map((property, index) => (
-              <PropertyCard key={property.id} property={property} priority={index < 2} />
-            ))}
-          </div>
-        )}
+          {alternatives.map((group) => (
+            <section key={group.kind} className="mt-10" aria-labelledby={`alternatives-${group.kind}`}>
+              <div className="mb-5">
+                <h2 id={`alternatives-${group.kind}`} className="text-xl font-bold text-navy-900">{groupLabels[group.kind]}</h2>
+                <p className="mt-1 text-sm leading-6 text-gray-500">
+                  {dict.search.relaxedFilters}: {group.relaxed.map((filter) => relaxedLabels[filter]).join(locale === 'ar' ? '، ' : ', ')}.
+                  {' '}{group.kind === 'sameCity' ? dict.search.expandedToCity : group.kind === 'sameRegion' ? dict.search.expandedToRegion : ''}
+                </p>
+              </div>
+              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {group.properties.map((property) => <PropertyCard key={property.id} property={property} />)}
+              </div>
+            </section>
+          ))}
+          {!alternatives.length && <p className="mt-5 text-center text-sm text-gray-500">{dict.search.noResultsHint}</p>}
+        </>
+      )}
 
-        {totalPages > 1 && (
-          <nav aria-label="Property pagination" className="flex flex-wrap justify-center gap-2 mt-8 sm:mt-10">
-            <button
-              aria-label="Previous page"
-              disabled={page <= 1 || isPending}
-              onClick={() => goToPage(page - 1)}
-              className="p-2 border border-surface-border rounded-lg disabled:opacity-40 hover:bg-gray-50"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            {visiblePages.map(pageNumber => (
-              <button
-                key={pageNumber}
-                aria-label={`Page ${pageNumber}`}
-                aria-current={page === pageNumber ? 'page' : undefined}
-                disabled={isPending}
-                onClick={() => goToPage(pageNumber)}
-                className={cn(
-                  'w-9 h-9 rounded-lg text-sm font-600 border transition-colors disabled:opacity-60',
-                  page === pageNumber
-                    ? 'bg-navy-500 text-white border-navy-500'
-                    : 'border-surface-border hover:bg-gray-50',
-                )}
-              >
-                {pageNumber}
-              </button>
-            ))}
-            <button
-              aria-label="Next page"
-              disabled={page >= totalPages || isPending}
-              onClick={() => goToPage(page + 1)}
-              className="p-2 border border-surface-border rounded-lg disabled:opacity-40 hover:bg-gray-50"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </nav>
-        )}
-      </div>
-    </div>
+      {data.totalPages > 1 && (
+        <nav className="mt-8 flex justify-center gap-2" aria-label="Pagination">
+          <button aria-label={locale === 'ar' ? 'الصفحة السابقة' : 'Previous page'} disabled={data.page <= 1} onClick={() => setFilter('page', String(data.page - 1))} className="grid min-h-11 min-w-11 place-items-center rounded-lg border bg-white p-2 disabled:opacity-40">
+            <ChevronRight className="h-5 w-5 rtl:hidden" /><ChevronLeft className="hidden h-5 w-5 rtl:block" />
+          </button>
+          <span className="rounded-lg bg-navy-800 px-4 py-2 text-sm text-white">{formatNumber(data.page, locale)} / {formatNumber(data.totalPages, locale)}</span>
+          <button aria-label={locale === 'ar' ? 'الصفحة التالية' : 'Next page'} disabled={data.page >= data.totalPages} onClick={() => setFilter('page', String(data.page + 1))} className="grid min-h-11 min-w-11 place-items-center rounded-lg border bg-white p-2 disabled:opacity-40">
+            <ChevronLeft className="h-5 w-5 rtl:hidden" /><ChevronRight className="hidden h-5 w-5 rtl:block" />
+          </button>
+        </nav>
+      )}
+    </section>
   );
 }

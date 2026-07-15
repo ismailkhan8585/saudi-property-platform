@@ -1,144 +1,57 @@
-/* eslint-disable react/no-unescaped-entities */
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Search, ChevronDown } from 'lucide-react';
-import { LAHORE_SOCIETIES, PROPERTY_CATEGORIES, STATS, AGENT_NAME_EN } from '@/lib/constants';
-import { cn } from '@/lib/utils';
+import { FormEvent, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowUpLeft, Search, ShieldCheck } from 'lucide-react';
+import { useLocale } from '@/components/providers/LocaleProvider';
+
+const heroImage = 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600';
 
 export default function Hero() {
+  const { locale, dict } = useLocale();
   const router = useRouter();
-  const [purpose, setPurpose]     = useState<'SALE' | 'RENT'>('SALE');
-  const [category, setCategory]   = useState('');
-  const [society, setSociety]     = useState('');
+  const [pending, startTransition] = useTransition();
+  const [query, setQuery] = useState('');
+  const [purpose, setPurpose] = useState('');
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
+  function submit(event: FormEvent) {
+    event.preventDefault();
     const params = new URLSearchParams();
-    if (purpose)  params.set('purpose', purpose);
-    if (category) params.set('category', category);
-    if (society)  params.set('society', society);
-    router.push(`/search?${params.toString()}`);
+    if (query.trim()) params.set('q', query.trim());
+    if (purpose) params.set('purpose', purpose);
+    startTransition(() => router.push(`/search${params.size ? `?${params}` : ''}`));
   }
 
   return (
-    <section className="relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 z-0">
-        <Image
-          src="https://images.pexels.com/photos/1797428/pexels-photo-1797428.jpeg?auto=compress&cs=tinysrgb&w=1920"
-          alt="Lahore skyline and modern property"
-          fill
-          priority
-          quality={80}
-          sizes="100vw"
-          className="object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-navy-900/75" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 sm:w-96 sm:h-96 rounded-full opacity-20"
-          style={{ background: 'radial-gradient(circle, rgb(201 168 76) 0%, transparent 70%)' }} />
-      </div>
-
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-4 pt-20 sm:pt-24 pb-10 sm:pb-16">
-        {/* Floating badge */}
-        <div className="flex justify-center mb-4 sm:mb-6">
-          <span className="inline-flex items-center gap-2 bg-gold-500/20 border border-gold-400/40 text-gold-300 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-full backdrop-blur-sm text-center">
-            🏙️ Lahore's Trusted Property Dealer
-          </span>
-        </div>
-
-        {/* Heading */}
-        <div className="text-center mb-4">
-          <h1 className="font-heading font-800 text-white text-3xl sm:text-4xl md:text-6xl lg:text-7xl leading-[1.12] mb-4 text-balance">
-            Find Your Perfect
-            <span className="text-gold-400 block">Property in Lahore</span>
-          </h1>
-          <p className="font-urdu text-gold-200 text-lg sm:text-xl md:text-2xl mb-4 text-center">
-            لاہور میں اپنا بہترین گھر تلاش کریں
+    <section className="relative isolate overflow-hidden bg-navy-900 text-white">
+      <Image src={heroImage} alt="" fill priority sizes="100vw" className="-z-20 object-cover object-center" />
+      <div className="absolute inset-0 -z-10 bg-gradient-to-r from-navy-900 via-navy-900/90 to-navy-900/45 rtl:bg-gradient-to-l" />
+      <div className="mx-auto grid min-h-[520px] max-w-7xl items-center px-4 py-12 sm:min-h-[600px] sm:px-6 sm:py-16 lg:min-h-[650px] lg:grid-cols-[1.1fr_.9fr] lg:py-20">
+        <div className="max-w-3xl">
+          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-gold-300/30 bg-gold-400/10 px-3 py-2 text-xs font-bold text-gold-200 sm:mb-5 sm:px-4 sm:text-sm">
+            <ShieldCheck className="h-4 w-4" />{dict.hero.eyebrow}
           </p>
-          <p className="text-white/70 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-            Houses, Plots, Apartments & Commercial Properties for Sale and Rent across all major Lahore societies
-          </p>
-        </div>
-
-        {/* Search Bar */}
-        <form onSubmit={handleSearch} className="mt-6 sm:mt-10 bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-2">
-          {/* Purpose Toggle */}
-          <div className="flex gap-1 p-1 bg-surface-secondary rounded-xl mb-2">
-            {(['SALE', 'RENT'] as const).map((p) => (
-              <button
-                key={p}
-                type="button"
-                onClick={() => setPurpose(p)}
-                className={cn(
-                  'flex-1 py-2.5 rounded-lg text-sm font-600 transition-all',
-                  purpose === p
-                    ? 'bg-navy-500 text-white shadow-md'
-                    : 'text-gray-600 hover:bg-gray-100'
-                )}
-              >
-                {p === 'SALE' ? 'For Sale' : 'For Rent'}
+          <h1 className="text-balance text-3xl font-extrabold leading-[1.18] sm:text-5xl lg:text-7xl">{dict.hero.title}</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-white/75 sm:mt-6 sm:text-lg sm:leading-8">{dict.hero.subtitle}</p>
+          <form onSubmit={submit} className="mt-6 max-w-3xl rounded-2xl border border-white/15 bg-white/95 p-2.5 text-navy-900 shadow-2xl backdrop-blur sm:mt-9 sm:rounded-3xl sm:p-3">
+            <div className="mb-2 flex gap-2 overflow-x-auto p-1 scrollbar-hide sm:mb-3">
+              {[["", locale === 'ar' ? 'الكل' : 'All'], ['SALE', dict.property.sale], ['RENT', dict.property.rent]].map(([value, label]) => (
+                <button key={value} type="button" onClick={() => setPurpose(value)} aria-pressed={purpose === value} className={`min-h-10 whitespace-nowrap rounded-full px-4 text-sm font-bold transition ${purpose === value ? 'bg-navy-800 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>{label}</button>
+              ))}
+            </div>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <label className="relative flex-1">
+                <span className="sr-only">{dict.hero.search}</span>
+                <Search className="absolute start-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+                <input value={query} onChange={(event) => setQuery(event.target.value)} className="min-h-12 w-full rounded-xl bg-gray-50 ps-12 pe-4 text-start outline-none ring-gold-500 focus:ring-2 sm:h-14 sm:rounded-2xl" placeholder={dict.hero.search} />
+              </label>
+              <button disabled={pending} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-gold-500 px-6 font-extrabold text-navy-900 transition hover:bg-gold-400 disabled:opacity-70 sm:h-14 sm:rounded-2xl sm:px-7">
+                {pending ? dict.common.loading : dict.hero.button}<ArrowUpLeft className="h-4 w-4 rtl:rotate-0 ltr:rotate-90" />
               </button>
-            ))}
-          </div>
-
-          {/* Filters Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mb-2">
-            <div className="relative">
-              <select
-                value={category}
-                onChange={e => setCategory(e.target.value)}
-                className="w-full appearance-none bg-surface-secondary border border-surface-border rounded-xl px-4 py-3 text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-navy-500 pr-8"
-              >
-                <option value="">All Property Types</option>
-                {PROPERTY_CATEGORIES.map(cat => (
-                  <option key={cat.value} value={cat.value}>
-                    {cat.icon} {cat.label}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
             </div>
-
-            <div className="relative">
-              <select
-                value={society}
-                onChange={e => setSociety(e.target.value)}
-                className="w-full appearance-none bg-surface-secondary border border-surface-border rounded-xl px-4 py-3 text-sm text-gray-700 font-medium focus:outline-none focus:ring-2 focus:ring-navy-500 pr-8"
-              >
-                <option value="">All Areas / Societies</option>
-                {LAHORE_SOCIETIES.map(s => (
-                  <option key={s} value={s}>{s}</option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            </div>
-
-            <button
-              type="submit"
-              className="flex items-center justify-center gap-2 bg-gold-500 hover:bg-gold-600 text-white py-3 px-6 rounded-xl text-sm font-700 transition-colors shadow-lg"
-            >
-              <Search className="w-4 h-4" />
-              Search Properties
-            </button>
-          </div>
-        </form>
-
-        {/* Trust Stats */}
-        <div className="mt-6 sm:mt-10 grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-4">
-          {[
-            { value: `${STATS.propertiesListed}+`, label: 'Properties Listed' },
-            { value: `${STATS.dealsClosed}+`,      label: 'Deals Closed' },
-            { value: `${STATS.happyClients}+`,     label: 'Happy Clients' },
-            { value: `${STATS.yearsExperience}+`,  label: 'Years Experience' },
-          ].map(({ value, label }) => (
-            <div key={label} className="text-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl py-3 sm:py-4 px-2 sm:px-3">
-              <div className="font-price font-700 text-gold-300 text-xl sm:text-2xl md:text-3xl">{value}</div>
-              <div className="text-white/70 text-[11px] sm:text-xs md:text-sm mt-1 leading-tight">{label}</div>
-            </div>
-          ))}
+          </form>
+          <p className="mt-3 text-xs text-white/60 sm:mt-4">{dict.hero.demo}</p>
         </div>
       </div>
     </section>

@@ -13,6 +13,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       data: {
         title:          body.title,
         title_ur:       body.titleUr || null,
+        title_ar:       body.titleUr || null,
         description:    body.description || null,
         purpose:        body.purpose as Purpose,
         category:       body.category as PropertyCategory,

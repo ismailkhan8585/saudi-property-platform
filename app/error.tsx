@@ -1,0 +1,2 @@
+'use client';
+export default function ErrorPage({reset}:{error:Error&{digest?:string};reset:()=>void}){return <main className="grid min-h-[60vh] place-items-center px-4 text-center"><div><h1 className="text-2xl font-extrabold text-navy-900">تعذر تحميل الصفحة · Unable to load this page</h1><p className="mt-3 text-gray-500">يرجى المحاولة مرة أخرى · Please try again.</p><button onClick={reset} className="mt-6 rounded-xl bg-navy-800 px-6 py-3 font-bold text-white">إعادة المحاولة · Try again</button></div></main>}

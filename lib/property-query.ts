@@ -1,56 +1,10 @@
-import type { PropertyCategory, Purpose } from '@prisma/client';
+import type { FurnishingStatus, PropertyCategory, Purpose } from '@prisma/client';
 import type { PublicPropertyQuery } from '@/lib/data/public';
-import { canonicalizeSociety } from '@/lib/societies';
-
-export type PageSearchParams = Record<string, string | string[] | undefined>;
-
-const PURPOSES = new Set<Purpose>(['SALE', 'RENT']);
-const CATEGORIES = new Set<PropertyCategory>([
-  'HOUSE', 'APARTMENT', 'PLOT', 'COMMERCIAL', 'FARMHOUSE', 'VILLA',
-  'ROOM', 'PORTION', 'OFFICE', 'SHOP', 'WAREHOUSE',
-]);
-
-function first(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
-}
-
-export function parsePublicPropertyQuery(
-  params: PageSearchParams | URLSearchParams,
-  defaults: Pick<PublicPropertyQuery, 'purpose' | 'category'> = {},
-): PublicPropertyQuery {
-  const read = (key: string) => params instanceof URLSearchParams ? params.get(key) ?? undefined : first(params[key]);
-  const purposeValue = read('purpose');
-  const categoryValue = read('category');
-  const bedroomsValue = Number.parseInt(read('bedrooms') ?? '', 10);
-  const pageValue = Number.parseInt(read('page') ?? '1', 10);
-  const limitValue = Number.parseInt(read('limit') ?? '12', 10);
-  const sortValue = read('sort');
-
-  return {
-    purpose: purposeValue && PURPOSES.has(purposeValue as Purpose) ? purposeValue as Purpose : defaults.purpose,
-    category: categoryValue && CATEGORIES.has(categoryValue as PropertyCategory)
-      ? categoryValue as PropertyCategory
-      : defaults.category,
-    society: canonicalizeSociety(read('society')) ?? (read('society')?.trim() || undefined),
-    bedrooms: Number.isFinite(bedroomsValue) && bedroomsValue > 0 ? bedroomsValue : undefined,
-    featured: read('featured') === 'true' || undefined,
-    search: read('q')?.trim() || undefined,
-    sort: sortValue === 'price_asc' || sortValue === 'price_desc' ? sortValue : 'newest',
-    page: Number.isFinite(pageValue) && pageValue > 0 ? pageValue : 1,
-    limit: Number.isFinite(limitValue) && limitValue > 0 ? Math.min(limitValue, 48) : 12,
-  };
-}
-
-export function serializePublicPropertyQuery(query: PublicPropertyQuery): string {
-  const params = new URLSearchParams();
-  if (query.purpose) params.set('purpose', query.purpose);
-  if (query.category) params.set('category', query.category);
-  if (query.society) params.set('society', query.society);
-  if (query.bedrooms) params.set('bedrooms', String(query.bedrooms));
-  if (query.featured) params.set('featured', 'true');
-  if (query.search) params.set('q', query.search);
-  params.set('sort', query.sort ?? 'newest');
-  params.set('page', String(query.page ?? 1));
-  params.set('limit', String(query.limit ?? 12));
-  return params.toString();
-}
+export type PageSearchParams=Record<string,string|string[]|undefined>;
+const purposes=new Set<Purpose>(['SALE','RENT','DAILY_RENT','COMMERCIAL_LEASE']);
+const categories=new Set<PropertyCategory>(['HOUSE','APARTMENT','PLOT','COMMERCIAL','FARMHOUSE','VILLA','ROOM','PORTION','OFFICE','SHOP','WAREHOUSE']);
+const furnishings=new Set<FurnishingStatus>(['UNFURNISHED','SEMI_FURNISHED','FURNISHED']);
+const first=(v:string|string[]|undefined)=>Array.isArray(v)?v[0]:v;
+const positive=(v?:string)=>{const n=Number(v);return Number.isFinite(n)&&n>=0?n:undefined};
+export function parsePublicPropertyQuery(params:PageSearchParams|URLSearchParams,defaults:Pick<PublicPropertyQuery,'purpose'|'category'>={}):PublicPropertyQuery{const read=(k:string)=>params instanceof URLSearchParams?params.get(k)??undefined:first(params[k]);const purpose=read('purpose') as Purpose,category=read('category') as PropertyCategory,furnished=read('furnished') as FurnishingStatus,sort=read('sort') as PublicPropertyQuery['sort'];return{purpose:purposes.has(purpose)?purpose:defaults.purpose,category:categories.has(category)?category:defaults.category,region:read('region'),city:read('city'),district:read('district'),bedrooms:positive(read('bedrooms')),bathrooms:positive(read('bathrooms')),furnished:furnishings.has(furnished)?furnished:undefined,amenities:read('amenities')?.split(',').filter(Boolean),minPrice:positive(read('minPrice')),maxPrice:positive(read('maxPrice')),minArea:positive(read('minArea')),maxArea:positive(read('maxArea')),featured:read('featured')==='true'||undefined,search:read('q')?.trim()||undefined,sort:['relevance','newest','price_asc','price_desc','area_desc'].includes(sort??'')?sort:'newest',page:Math.max(1,positive(read('page'))??1),limit:Math.min(48,Math.max(1,positive(read('limit'))??12))};}
+export function serializePublicPropertyQuery(q:PublicPropertyQuery){const p=new URLSearchParams();Object.entries(q).forEach(([k,v])=>{if(v!==undefined&&v!==''&&k!=='amenities')p.set(k,String(v))});if(q.amenities?.length)p.set('amenities',q.amenities.join(','));return p.toString();}

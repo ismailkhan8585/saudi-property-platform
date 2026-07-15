@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("Database_URL")
+  url      = env("DATABASE_URL")
 }
 
 model admins {
@@ -41,8 +41,10 @@ model properties {
   slug            String           @unique
   title           String
   title_ur        String?
+  title_ar        String?
   description     String?
   description_ur  String?
+  description_ar  String?
   purpose         Purpose
   category        PropertyCategory
   sub_category    String?
@@ -51,15 +53,17 @@ model properties {
   price           Decimal?         @db.Decimal(15, 2)
   rent_price      Decimal?         @db.Decimal(10, 2)
   size            Decimal          @db.Decimal(8, 2)
-  size_unit       SizeUnit         @default(MARLA)
+  size_unit       SizeUnit         @default(SQM)
   bedrooms        Int?
   bathrooms       Int?
   floors          Int?
   facing          String?
-  city            String           @default("Lahore")
+  city            String           @default("Riyadh")
   society         String?
   area            String?
   address         String?
+  address_ar      String?
+  location_id     String?
   map_lat         Float?
   map_lng         Float?
   photos          String[]         @default([])
@@ -73,6 +77,13 @@ model properties {
   has_garage      Boolean          @default(false)
   has_garden      Boolean          @default(false)
   has_servant_qtr Boolean          @default(false)
+  furnished       FurnishingStatus @default(UNFURNISHED)
+  property_age    Int?
+  amenities       String[]         @default([])
+  search_keywords_ar String[]      @default([])
+  search_keywords_en String[]      @default([])
+  is_demo         Boolean          @default(false)
+  published_at    DateTime?
   possession      PossessionStatus @default(AVAILABLE)
   featured        Boolean          @default(false)
   is_active       Boolean          @default(true)
@@ -80,6 +91,36 @@ model properties {
   created_at      DateTime         @default(now())
   updated_at      DateTime
   leads           leads[]
+  location        locations?       @relation(fields: [location_id], references: [id], onDelete: Restrict)
+
+  @@index([location_id])
+  @@index([purpose, category, is_active])
+  @@index([price])
+  @@index([rent_price])
+  @@index([size])
+  @@index([created_at])
+}
+
+model locations {
+  id             String       @id
+  slug           String       @unique
+  name_ar        String
+  name_en        String
+  type           LocationType
+  parent_id      String?
+  aliases_ar     String[]     @default([])
+  aliases_en     String[]     @default([])
+  active         Boolean      @default(true)
+  display_order  Int          @default(0)
+  created_at     DateTime     @default(now())
+  updated_at     DateTime     @updatedAt
+  parent         locations?   @relation("LocationTree", fields: [parent_id], references: [id], onDelete: Restrict)
+  children       locations[]  @relation("LocationTree")
+  properties     properties[]
+
+  @@index([parent_id, type, active])
+  @@index([name_en])
+  @@index([name_ar])
 }
 
 model site_settings {
@@ -88,8 +129,8 @@ model site_settings {
   agent_name_ur     String?
   tagline_en        String?
   tagline_ur        String?
-  phone             String   @default("+923029154977")
-  whatsapp          String   @default("923029154977")
+  phone             String   @default("+966505419648")
+  whatsapp          String   @default("966505419648")
   email             String?
   office_address_en String?
   office_address_ur String?
@@ -160,11 +201,27 @@ enum PropertyStatus {
 enum Purpose {
   SALE
   RENT
+  DAILY_RENT
+  COMMERCIAL_LEASE
 }
 
 enum SizeUnit {
+  SQM
   MARLA
   KANAL
   SQFT
   SQYD
+}
+
+enum FurnishingStatus {
+  UNFURNISHED
+  SEMI_FURNISHED
+  FURNISHED
+}
+
+enum LocationType {
+  COUNTRY
+  REGION
+  CITY
+  DISTRICT
 }

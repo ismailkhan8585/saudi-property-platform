@@ -1,38 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-
-const ADMIN_EMAIL    = process.env.ADMIN_EMAIL    ?? 'admin@ahmedproperties.pk';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? 'Admin@1234';
-
-export async function POST(req: NextRequest) {
-  try {
-    const { email, password } = await req.json();
-
-    if (!email || !password) {
-      return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
-    }
-
-    if (email !== ADMIN_EMAIL || password !== ADMIN_PASSWORD) {
-      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-    }
-
-    const cookieStore = await cookies();
-    cookieStore.set('admin_session', 'authenticated', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 7,
-      path: '/',
-      sameSite: 'lax',
-    });
-
-    return NextResponse.json({ success: true });
-  } catch {
-    return NextResponse.json({ error: 'Server error' }, { status: 500 });
-  }
-}
-
-export async function DELETE() {
-  const cookieStore = await cookies();
-  cookieStore.delete('admin_session');
-  return NextResponse.json({ success: true });
-}
+import{NextRequest,NextResponse}from'next/server';import{cookies}from'next/headers';import{z}from'zod';import{createSessionToken}from'@/lib/auth';
+const input=z.object({email:z.string().email(),password:z.string().min(8).max(200)});
+export async function POST(req:NextRequest){try{const body=input.safeParse(await req.json());if(!body.success)return NextResponse.json({error:'Invalid request'},{status:400});const email=process.env.ADMIN_EMAIL,password=process.env.ADMIN_PASSWORD;if(!email||!password)return NextResponse.json({error:'Admin authentication is not configured'},{status:503});if(body.data.email!==email||body.data.password!==password)return NextResponse.json({error:'Invalid credentials'},{status:401});(await cookies()).set('admin_session',await createSessionToken(),{httpOnly:true,secure:process.env.NODE_ENV==='production',maxAge:604800,path:'/',sameSite:'lax'});return NextResponse.json({success:true})}catch{return NextResponse.json({error:'Server error'},{status:500})}}
+export async function DELETE(){(await cookies()).delete('admin_session');return NextResponse.json({success:true})}

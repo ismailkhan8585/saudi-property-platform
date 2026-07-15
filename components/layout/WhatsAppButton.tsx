@@ -1,18 +1,15 @@
 'use client';
-
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { MessageCircle } from 'lucide-react';
-import { WHATSAPP_URL, WHATSAPP_GENERAL_MSG } from '@/lib/constants';
+import { useLocale } from '@/components/providers/LocaleProvider';
+import { useContact } from '@/components/providers/ContactProvider';
 
-export default function WhatsAppButton() {
-  return (
-    <a
-      href={`${WHATSAPP_URL}?text=${encodeURIComponent(WHATSAPP_GENERAL_MSG)}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="hidden md:flex fixed bottom-6 right-6 z-40 w-14 h-14 bg-green-500 hover:bg-green-600 rounded-full shadow-2xl items-center justify-center text-white whatsapp-pulse transition-colors"
-      aria-label="Chat on WhatsApp"
-    >
-      <MessageCircle className="w-7 h-7" />
-    </a>
-  );
+export default function WhatsAppButton(){
+  const pathname=usePathname();const{locale,dict}=useLocale();const contact=useContact();
+  if(pathname.startsWith('/admin')||pathname.startsWith('/properties/'))return null;
+  const message=locale==='ar'?'مرحباً، أرغب في الاستفسار عن أحد العقارات المعروضة على موقعكم.':'Hello, I would like to enquire about a property listed on your website.';
+  const className='fixed bottom-5 end-4 z-40 grid h-14 w-14 place-items-center rounded-full bg-emerald-600 text-white shadow-[0_12px_35px_rgba(5,150,105,.35)] transition duration-200 hover:-translate-y-1 hover:bg-emerald-700 focus-visible:ring-4 focus-visible:ring-emerald-200 sm:bottom-7 sm:end-7';
+  if(!contact.whatsappNumber)return <Link href="/contact" className={className} aria-label={locale==='ar'?'تأكيد رقم واتساب':'Confirm WhatsApp number'} title={locale==='ar'?'رقم واتساب بانتظار تأكيد العميل':'WhatsApp number awaiting client confirmation'}><MessageCircle className="h-7 w-7"/></Link>;
+  return <a href={`https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer" className={className} aria-label={dict.common.whatsapp}><MessageCircle className="h-7 w-7"/></a>;
 }

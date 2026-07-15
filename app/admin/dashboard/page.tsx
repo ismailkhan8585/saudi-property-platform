@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { Home, MessageSquare, TrendingUp, Users, Phone, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { CALL_URL, WHATSAPP_URL } from '@/lib/constants';
+import { getContactConfig } from '@/lib/contact';
 import { formatDistance } from 'date-fns';
 
 async function getDashboardStats() {
@@ -52,6 +52,7 @@ const LEAD_TYPE_COLORS: Record<string, string> = {
 
 export default async function DashboardPage() {
   const stats = await getDashboardStats();
+  const contact = getContactConfig();
 
   const statCards = [
     { label: 'Total Active Listings', value: stats.totalActive, Icon: Home,         color: 'border-l-navy-500',   bg: 'bg-navy-50',   text: 'text-navy-700' },
@@ -120,13 +121,13 @@ export default async function DashboardPage() {
                         <a href={`tel:${lead.phone}`} className="w-8 h-8 bg-navy-50 hover:bg-navy-100 rounded-lg flex items-center justify-center">
                           <Phone className="w-3.5 h-3.5 text-navy-600" />
                         </a>
-                        <a
-                          href={`${WHATSAPP_URL}?text=${encodeURIComponent(`Hi ${lead.name}, regarding your inquiry...`)}`}
+                        {contact.whatsappNumber && <a
+                          href={`https://wa.me/${contact.whatsappNumber}?text=${encodeURIComponent(`Hi ${lead.name}, regarding your inquiry...`)}`}
                           target="_blank" rel="noopener noreferrer"
                           className="w-8 h-8 bg-green-50 hover:bg-green-100 rounded-lg flex items-center justify-center"
                         >
                           <MessageCircle className="w-3.5 h-3.5 text-green-600" />
-                        </a>
+                        </a>}
                       </div>
                     </div>
                   ))

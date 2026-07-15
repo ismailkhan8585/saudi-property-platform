@@ -12,9 +12,9 @@ export async function GET(req: NextRequest) {
         'Cache-Control': `public, s-maxage=${PUBLIC_CACHE_SECONDS}, stale-while-revalidate=${PUBLIC_CACHE_SECONDS * 2}`,
       },
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Server error' },
+      { error: 'Unable to load properties' },
       { status: 500 },
     );
   }

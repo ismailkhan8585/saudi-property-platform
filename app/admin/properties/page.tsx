@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import { Plus, Edit, Eye } from 'lucide-react';
-import { formatPKR, formatRent } from '@/lib/currency';
+import { formatSAR, formatRent } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 
 async function getProperties() {
@@ -41,7 +41,7 @@ export default async function AdminPropertiesPage() {
               {properties.map((p: any) => {
                 const priceDisplay = p.price_type === 'ON_REQUEST' ? 'Price on Request'
                   : p.purpose === 'RENT' ? formatRent(Number(p.rent_price))
-                  : formatPKR(Number(p.price));
+                  : formatSAR(Number(p.price));
 
                 return (
                   <div key={p.id} className="px-4 sm:px-5 py-4 flex flex-wrap sm:flex-nowrap items-center gap-3 sm:gap-4">

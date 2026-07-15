@@ -1,4 +1,4 @@
-export type Purpose = 'SALE' | 'RENT';
+export type Purpose = 'SALE' | 'RENT' | 'DAILY_RENT' | 'COMMERCIAL_LEASE';
 
 export type PropertyCategory =
   | 'HOUSE'
@@ -15,7 +15,8 @@ export type PropertyCategory =
 
 export type PropertyStatus = 'AVAILABLE' | 'SOLD' | 'RENTED' | 'RESERVED';
 export type PriceType = 'FIXED' | 'ON_REQUEST';
-export type SizeUnit = 'MARLA' | 'KANAL' | 'SQFT' | 'SQYD';
+export type SizeUnit = 'SQM' | 'MARLA' | 'KANAL' | 'SQFT' | 'SQYD';
+export type FurnishingStatus = 'UNFURNISHED' | 'SEMI_FURNISHED' | 'FURNISHED';
 export type PossessionStatus = 'AVAILABLE' | 'ON_BOOKING' | 'UNDER_CONSTRUCTION';
 export type LeadType =
   | 'WHATSAPP_CLICK'
@@ -30,8 +31,10 @@ export interface Property {
   slug: string;
   title: string;
   titleUr?: string | null;
+  titleAr?: string | null;
   description?: string | null;
   descriptionUr?: string | null;
+  descriptionAr?: string | null;
   purpose: Purpose;
   category: PropertyCategory;
   subCategory?: string | null;
@@ -49,6 +52,14 @@ export interface Property {
   society?: string | null;
   area?: string | null;
   address?: string | null;
+  addressAr?: string | null;
+  locationId?: string | null;
+  regionNameAr?: string | null;
+  regionNameEn?: string | null;
+  cityNameAr?: string | null;
+  cityNameEn?: string | null;
+  districtNameAr?: string | null;
+  districtNameEn?: string | null;
   mapLat?: number | null;
   mapLng?: number | null;
   photos: string[];
@@ -62,6 +73,10 @@ export interface Property {
   hasGarage: boolean;
   hasGarden: boolean;
   hasServantQtr: boolean;
+  furnished: FurnishingStatus;
+  propertyAge?: number | null;
+  amenities: string[];
+  isDemo: boolean;
   possession: PossessionStatus;
   featured: boolean;
   isActive: boolean;
@@ -128,3 +143,13 @@ export interface PaginatedProperties {
   pageSize: number;
   totalPages: number;
 }
+
+export type RelaxedSearchFilter = 'amenities' | 'furnished' | 'bathrooms' | 'bedrooms' | 'area' | 'price';
+export type SearchAlternativeKind = 'sameDistrict' | 'sameCity' | 'sameRegion' | 'suggested';
+export interface SearchAlternativeGroup {
+  kind: SearchAlternativeKind;
+  relaxed: RelaxedSearchFilter[];
+  properties: Property[];
+}
+
+export interface Location { id: string; slug: string; nameAr: string; nameEn: string; type: 'COUNTRY' | 'REGION' | 'CITY' | 'DISTRICT'; parentId?: string | null; aliasesAr: string[]; aliasesEn: string[]; }

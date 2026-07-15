@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Phone, MessageCircle, Check, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { WHATSAPP_URL } from '@/lib/constants';
 import { formatDistance } from 'date-fns';
 
 const LEAD_TYPE_LABELS: Record<string, string> = {
@@ -42,7 +41,7 @@ const FILTERS = [
   { value: 'PRICE_REQUEST',  label: 'Price' },
 ];
 
-export default function LeadsTable() {
+export default function LeadsTable({ whatsappNumber }: { whatsappNumber: string | null }) {
   const [leads,   setLeads]   = useState<Lead[]>([]);
   const [total,   setTotal]   = useState(0);
   const [filter,  setFilter]  = useState('');
@@ -130,14 +129,14 @@ export default function LeadsTable() {
                     <Phone className="w-3.5 h-3.5" />
                     Call
                   </a>
-                  <a
-                    href={`${WHATSAPP_URL}?text=${encodeURIComponent(`Hi ${lead.name}! Thank you for contacting us. How can I help you?`)}`}
+                  {whatsappNumber && <a
+                    href={`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(`Hi ${lead.name}! Thank you for contacting us. How can I help you?`)}`}
                     target="_blank" rel="noopener noreferrer"
                     className="flex items-center justify-center gap-1 bg-green-50 hover:bg-green-100 text-green-700 px-3 py-2.5 sm:py-2 rounded-lg text-xs font-700 transition-colors"
                   >
                     <MessageCircle className="w-3.5 h-3.5" />
                     WhatsApp
-                  </a>
+                  </a>}
                   {!lead.is_read && (
                     <button
                       onClick={() => markRead(lead.id)}

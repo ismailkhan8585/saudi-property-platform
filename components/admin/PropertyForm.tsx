@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { LAHORE_SOCIETIES, PROPERTY_CATEGORIES } from '@/lib/constants';
+import { SAUDI_CITIES, PROPERTY_CATEGORIES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 import type { Property } from '@/lib/types';
 
@@ -24,7 +24,7 @@ export default function PropertyForm({ property }: Props) {
     price:        property?.price?.toString()     ?? '',
     rentPrice:    property?.rentPrice?.toString() ?? '',
     size:         property?.size?.toString()      ?? '',
-    sizeUnit:     property?.sizeUnit     ?? 'MARLA',
+    sizeUnit:     property?.sizeUnit     ?? 'SQM',
     bedrooms:     property?.bedrooms?.toString()  ?? '',
     bathrooms:    property?.bathrooms?.toString() ?? '',
     floors:       property?.floors?.toString()    ?? '',
@@ -106,11 +106,11 @@ export default function PropertyForm({ property }: Props) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className={labelCls}>Title (English) *</label>
-            <input className={inputCls} value={form.title} onChange={e => set('title', e.target.value)} placeholder="5 Marla House in DHA Phase 5" required />
+            <input className={inputCls} value={form.title} onChange={e => set('title', e.target.value)} placeholder="Family villa in Al Malqa" required />
           </div>
           <div>
-            <label className={labelCls}>Title (Urdu)</label>
-            <input className={cn(inputCls, 'font-urdu text-right')} value={form.titleUr} onChange={e => set('titleUr', e.target.value)} placeholder="ڈی ایچ اے میں 5 مرلہ مکان" dir="rtl" />
+            <label className={labelCls}>Title (Arabic)</label>
+            <input className={cn(inputCls, 'font-urdu text-right')} value={form.titleUr} onChange={e => set('titleUr', e.target.value)} placeholder="فيلا عائلية في حي الملقا" dir="rtl" />
           </div>
           <div>
             <label className={labelCls}>Purpose *</label>
@@ -149,7 +149,7 @@ export default function PropertyForm({ property }: Props) {
             <label className={labelCls}>Society / Area</label>
             <select className={inputCls} value={form.society} onChange={e => set('society', e.target.value)}>
               <option value="">Select Society</option>
-              {LAHORE_SOCIETIES.map(s => <option key={s} value={s}>{s}</option>)}
+              {SAUDI_CITIES.map(s => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
           <div>
@@ -174,8 +174,7 @@ export default function PropertyForm({ property }: Props) {
           <div>
             <label className={labelCls}>Unit</label>
             <select className={inputCls} value={form.sizeUnit} onChange={e => set('sizeUnit', e.target.value)}>
-              <option value="MARLA">Marla</option>
-              <option value="KANAL">Kanal</option>
+              <option value="SQM">Square metres</option>
               <option value="SQFT">Sq. Ft</option>
               <option value="SQYD">Sq. Yd</option>
             </select>
@@ -228,13 +227,13 @@ export default function PropertyForm({ property }: Props) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {form.purpose === 'SALE' && (
               <div>
-                <label className={labelCls}>Sale Price (PKR)</label>
+                <label className={labelCls}>Sale Price (SAR)</label>
                 <input className={inputCls} type="number" value={form.price} onChange={e => set('price', e.target.value)} placeholder="18500000" />
               </div>
             )}
             {form.purpose === 'RENT' && (
               <div>
-                <label className={labelCls}>Monthly Rent (PKR)</label>
+                <label className={labelCls}>Monthly Rent (SAR)</label>
                 <input className={inputCls} type="number" value={form.rentPrice} onChange={e => set('rentPrice', e.target.value)} placeholder="45000" />
               </div>
             )}

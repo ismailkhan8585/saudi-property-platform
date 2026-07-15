@@ -1,0 +1,101 @@
+{
+  "generatedAt": "2026-07-15T20:01:58.362Z",
+  "contract": {
+    "activeDistricts": 25,
+    "majorCities": [
+      "riyadh",
+      "jeddah",
+      "makkah",
+      "madinah",
+      "dammam",
+      "khobar"
+    ],
+    "priceBands": {
+      "sale": [
+        {
+          "name": "low",
+          "min": 250000,
+          "max": 999999,
+          "target": 650000
+        },
+        {
+          "name": "medium",
+          "min": 1000000,
+          "max": 2999999,
+          "target": 1850000
+        },
+        {
+          "name": "premium",
+          "min": 3000000,
+          "max": 10000000,
+          "target": 4800000
+        }
+      ],
+      "rent": [
+        {
+          "name": "low",
+          "min": 1500,
+          "max": 4999,
+          "target": 3200
+        },
+        {
+          "name": "medium",
+          "min": 5000,
+          "max": 14999,
+          "target": 9500
+        },
+        {
+          "name": "premium",
+          "min": 15000,
+          "max": 50000,
+          "target": 26000
+        }
+      ]
+    },
+    "areaBands": [
+      {
+        "name": "small",
+        "min": 45,
+        "max": 120,
+        "target": 85
+      },
+      {
+        "name": "medium",
+        "min": 121,
+        "max": 300,
+        "target": 185
+      },
+      {
+        "name": "large",
+        "min": 301,
+        "max": 1000,
+        "target": 520
+      }
+    ],
+    "bedroomMinimums": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "furnishing": [
+      "FURNISHED",
+      "UNFURNISHED"
+    ],
+    "featuredByResidentialType": true,
+    "featuredMajorCityCategories": true,
+    "documentedBedroomBehavior": "minimum (greater than or equal)"
+  },
+  "counts": {
+    "locations": 60,
+    "properties": 324,
+    "requiredCases": 904,
+    "missing": 0,
+    "translationErrors": 0,
+    "relationshipErrors": 0
+  },
+  "missing": [],
+  "translationErrors": [],
+  "relationshipErrors": []
+}

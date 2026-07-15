@@ -1,161 +1,61 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Menu, X, Home, Building2, Search, Info, Phone, MessageCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { AGENT_NAME_EN, WHATSAPP_URL, WHATSAPP_GENERAL_MSG } from '@/lib/constants';
+import { Building2, Menu, Phone } from 'lucide-react';
+import { useLocale } from '@/components/providers/LocaleProvider';
+import { useContact } from '@/components/providers/ContactProvider';
+import LanguageSwitcher from './LanguageSwitcher';
 
-const navLinks = [
-  { href: '/properties',          label: 'Properties' },
-  { href: '/properties/for-sale', label: 'For Sale' },
-  { href: '/properties/for-rent', label: 'For Rent' },
-  { href: '/about',               label: 'About' },
-  { href: '/contact',             label: 'Contact' },
-];
-
-const mobileNavLinks = [
-  { href: '/',                    label: 'Home',       Icon: Home },
-  { href: '/properties',          label: 'Properties', Icon: Building2 },
-  { href: '/search',              label: 'Search',     Icon: Search },
-  { href: '/about',               label: 'About',      Icon: Info },
-  { href: '/contact',             label: 'Contact',    Icon: Phone },
-];
+const MobileNavigation = dynamic(() => import('./MobileNavigation'), { ssr: false });
 
 export default function Navbar() {
-  const [scrolled, setScrolled]   = useState(false);
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const pathname = usePathname();
-  const isHomePage = pathname === '/';
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const isTransparent = isHomePage && !scrolled && !menuOpen;
+  const { locale, dict } = useLocale();
+  const contact = useContact();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const links = [
+    ['/', dict.nav.home],
+    ['/search', dict.nav.properties],
+    ['/search?purpose=SALE', dict.nav.sale],
+    ['/search?purpose=RENT', dict.nav.rent],
+    ['/about', dict.nav.about],
+    ['/contact', dict.nav.contact],
+  ];
 
   return (
-    <>
-      <nav
-        className={cn(
-          'fixed top-0 inset-x-0 z-50 transition-all duration-300',
-          isTransparent
-            ? 'bg-transparent'
-            : 'bg-navy-700 shadow-lg backdrop-blur-md'
-        )}
-      >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
-
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 flex-shrink-0">
-              <div className="w-9 h-9 bg-gold-500 rounded-lg flex items-center justify-center">
-                <Building2 className="w-5 h-5 text-white" />
-              </div>
-              <div className="block min-w-0">
-                <span className="font-heading font-800 text-white text-sm sm:text-lg leading-tight block truncate max-w-[130px] sm:max-w-none">
-                  {AGENT_NAME_EN}
-                </span>
-                <span className="hidden sm:block text-gold-300 text-xs leading-none font-urdu">
-                  لاہور پراپرٹی ڈیلر
-                </span>
-              </div>
-            </Link>
-
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-1">
-              {navLinks.map(({ href, label }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  className={cn(
-                    'px-4 py-2 rounded-md text-sm font-medium transition-colors',
-                    pathname === href || pathname.startsWith(href + '/')
-                      ? 'text-gold-400 bg-white/10'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
-                  )}
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-2">
-              <a
-                href={`${WHATSAPP_URL}?text=${encodeURIComponent(WHATSAPP_GENERAL_MSG)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white w-10 h-10 sm:w-auto sm:h-auto sm:px-3 sm:py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">WhatsApp</span>
-              </a>
-
-              <Link
-                href="/contact"
-                className="hidden md:flex items-center border border-gold-400 text-gold-300 hover:bg-gold-500 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              >
-                List Property
-              </Link>
-
-              {/* Mobile hamburger */}
-              <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="md:hidden w-10 h-10 flex items-center justify-center text-white rounded-md hover:bg-white/10"
-                aria-label="Toggle menu"
-              >
-                {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Mobile menu */}
-        {menuOpen && (
-          <div className="md:hidden bg-navy-800 border-t border-navy-600 px-3 py-3 space-y-1 max-h-[calc(100vh-4rem)] overflow-y-auto">
-            {navLinks.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={() => setMenuOpen(false)}
-                className={cn(
-                  'block px-4 py-3 rounded-lg text-sm font-medium transition-colors',
-                  pathname === href
-                    ? 'bg-gold-500/20 text-gold-300'
-                    : 'text-white/80 hover:text-white hover:bg-white/10'
-                )}
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </nav>
-
-      {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-navy-800 border-t border-navy-600 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex min-h-[4.5rem]">
-          {mobileNavLinks.map(({ href, label, Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex-1 min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[11px] sm:text-xs font-medium transition-colors',
-                pathname === href
-                  ? 'text-gold-400'
-                  : 'text-white/60 hover:text-white'
-              )}
-            >
-              <Icon className="w-5 h-5" />
-              {label}
-            </Link>
-          ))}
+    <header className="sticky top-0 z-50 bg-navy-900 text-white shadow-lg">
+      <div className="border-b border-white/10 bg-navy-800">
+        <div className="mx-auto flex min-h-9 max-w-7xl items-center justify-end gap-3 px-4 text-xs text-white/70 sm:justify-between sm:px-6">
+          <span className="hidden sm:inline">{locale === 'ar' ? 'منصة عقارية سعودية ثنائية اللغة' : 'Bilingual Saudi property platform'}</span>
+          {contact.businessPhone ? (
+            <a href={`tel:${contact.businessPhone}`} className="inline-flex min-h-9 items-center gap-1.5 font-semibold text-white hover:text-gold-300" dir="ltr">
+              <Phone className="h-3.5 w-3.5" />{contact.phoneDisplay}
+            </a>
+          ) : (
+            <Link href="/contact" className="inline-flex min-h-9 items-center text-gold-300">{dict.nav.contact}</Link>
+          )}
         </div>
       </div>
-    </>
+
+      <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6" aria-label={locale === 'ar' ? 'التنقل الرئيسي' : 'Main navigation'}>
+        <Link href="/" className="flex min-h-11 min-w-0 items-center gap-2.5 sm:gap-3">
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gold-500 text-navy-900 sm:h-11 sm:w-11"><Building2 className="h-5 w-5 sm:h-6 sm:w-6" /></span>
+          <span className="min-w-0"><strong className="block truncate text-base sm:text-lg">{dict.brand}</strong><small className="hidden text-gold-300 xl:block">{dict.tagline}</small></span>
+        </Link>
+
+        <div className="hidden items-center gap-1 lg:flex">
+          {links.map(([href, label]) => <Link key={href} href={href} className="inline-flex min-h-11 items-center rounded-lg px-3 py-2 text-sm text-white/75 transition hover:bg-white/10 hover:text-white">{label}</Link>)}
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+          <LanguageSwitcher />
+          <button type="button" onClick={() => setMenuOpen(true)} className="grid h-11 w-11 place-items-center rounded-xl border border-white/15 hover:bg-white/10 lg:hidden" aria-label={locale === 'ar' ? 'فتح القائمة' : 'Open menu'} aria-expanded={menuOpen}>
+            <Menu className="h-5 w-5" />
+          </button>
+          {menuOpen && <MobileNavigation open={menuOpen} onOpenChange={setMenuOpen} />}
+        </div>
+      </nav>
+    </header>
   );
 }

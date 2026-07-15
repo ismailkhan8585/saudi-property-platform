@@ -1,19 +1,3 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const session = req.cookies.get('admin_session');
-    if (!session || session.value !== 'authenticated') {
-      return NextResponse.redirect(new URL('/admin/login', req.url));
-    }
-  }
-
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: ['/admin/:path*'],
-};
+import{NextResponse}from'next/server';import type{NextRequest}from'next/server';import{verifySessionToken}from'@/lib/auth';
+export async function middleware(req:NextRequest){const p=req.nextUrl.pathname;const protectedRoute=(p.startsWith('/admin')&&!p.startsWith('/admin/login'))||p.startsWith('/api/admin')||(p.startsWith('/api/leads')&&!(p==='/api/leads'&&req.method==='POST'))||(p==='/api/settings'&&req.method!=='GET');if(protectedRoute&&!await verifySessionToken(req.cookies.get('admin_session')?.value)){if(p.startsWith('/api/'))return NextResponse.json({error:'Unauthorized'},{status:401});return NextResponse.redirect(new URL('/admin/login',req.url))}return NextResponse.next()}
+export const config={matcher:['/admin/:path*','/api/admin/:path*','/api/leads/:path*','/api/settings']};

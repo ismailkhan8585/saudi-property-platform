@@ -37,11 +37,12 @@
 
   html, body {
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
     @apply bg-surface-secondary text-foreground font-body antialiased;
+    font-family: "Segoe UI", Tahoma, Arial, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -51,7 +52,7 @@
 
 @layer utilities {
   .font-urdu {
-    font-family: var(--font-noto-urdu), serif;
+    font-family: Tahoma, Arial, sans-serif;
     direction: rtl;
     text-align: right;
   }
@@ -109,6 +110,18 @@
   }
 }
 
+html[lang="en"] body { font-family: "Segoe UI", Arial, sans-serif; }
+:focus-visible { outline: 3px solid rgb(201 168 76); outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* Custom scrollbar for admin */
 ::-webkit-scrollbar {
   width: 6px;
@@ -123,15 +136,4 @@
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgb(171 140 58);
-}
-
-/* WhatsApp pulse animation */
-@keyframes whatsapp-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-  70% { box-shadow: 0 0 0 12px rgba(37, 211, 102, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
-}
-
-.whatsapp-pulse {
-  animation: whatsapp-pulse 2s infinite;
 }
