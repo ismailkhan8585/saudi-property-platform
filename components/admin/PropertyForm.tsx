@@ -73,10 +73,13 @@ export default function PropertyForm({ property }: Props) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: 'Unexpected server response' }));
       if (!res.ok) { toast.error(data.error ?? 'Failed'); return; }
       toast.success(isEdit ? 'Property updated!' : 'Property created!');
-      router.push('/admin/properties');
+      router.replace('/admin/properties');
+      router.refresh();
+    } catch {
+      toast.error('Unable to save the property. Check your connection and try again.');
     } finally {
       setLoading(false);
     }

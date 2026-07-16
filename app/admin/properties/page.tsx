@@ -38,6 +38,7 @@ export default async function AdminPropertiesPage() {
 
           <div className="bg-white rounded-2xl border border-surface-border shadow-sm overflow-hidden">
             <div className="divide-y divide-surface-border">
+              {properties.length === 0 && <div className="px-6 py-12 text-center"><p className="font-bold text-navy-700">No properties yet</p><p className="mt-2 text-sm text-gray-500">Create your first listing to get started.</p></div>}
               {properties.map((p: any) => {
                 const priceDisplay = p.price_type === 'ON_REQUEST' ? 'Price on Request'
                   : p.purpose === 'RENT' ? formatRent(Number(p.rent_price))

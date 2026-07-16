@@ -24,9 +24,15 @@ export default function AdminSidebar({ unreadLeads = 0 }: Props) {
   const [open, setOpen] = useState(false);
 
   async function handleLogout() {
-    await fetch('/api/admin/login', { method: 'DELETE' });
-    toast.success('Logged out');
-    router.push('/admin/login');
+    try {
+      const response = await fetch('/api/admin/login', { method: 'DELETE' });
+      if (!response.ok) throw new Error();
+      toast.success('Logged out');
+      router.replace('/admin/login');
+      router.refresh();
+    } catch {
+      toast.error('Unable to sign out. Please try again.');
+    }
   }
 
   const navigation = (mobile = false) => (

@@ -14,10 +14,14 @@ export default function SettingsPage() {
   });
   const [loading, setLoading] = useState(false);
   const [saving,  setSaving]  = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/settings').then(r => r.json()).then(d => {
+    fetch('/api/settings').then(async r => {
+      if (!r.ok) throw new Error('Failed to load settings');
+      return r.json();
+    }).then(d => {
       if (d.settings) {
         const s = d.settings;
         setForm({
@@ -38,6 +42,9 @@ export default function SettingsPage() {
           agentBioUr:  s.agent_bio_ur ?? '',
         });
       }
+    }).catch(() => {
+      setLoadError(true);
+      toast.error('Failed to load settings');
     }).finally(() => setLoading(false));
   }, []);
 
@@ -54,7 +61,8 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error();
+      const data = await res.json().catch(() => ({ error: 'Unexpected server response' }));
+      if (!res.ok) throw new Error(data.error || 'Failed to save settings');
       toast.success('Settings saved!');
     } catch {
       toast.error('Failed to save settings');
@@ -75,8 +83,21 @@ export default function SettingsPage() {
     </div>
   );
 
+  if (loadError) return (
+    <div className="flex min-h-screen flex-col bg-surface-secondary md:flex-row" dir="ltr">
+      <AdminSidebar />
+      <main className="grid min-w-0 flex-1 place-items-center p-4 sm:p-8">
+        <div className="max-w-md rounded-2xl border bg-white p-6 text-center shadow-sm">
+          <h1 className="text-xl font-extrabold text-navy-800">Settings could not be loaded</h1>
+          <p className="mt-2 text-sm text-gray-500">Check the connection, then reload this page.</p>
+          <button type="button" onClick={() => window.location.reload()} className="mt-5 min-h-11 rounded-xl bg-navy-700 px-5 font-bold text-white">Reload settings</button>
+        </div>
+      </main>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary">
+    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary" dir="ltr">
       <AdminSidebar />
       <div className="flex-1 min-w-0 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto">
         <div className="max-w-3xl mx-auto">

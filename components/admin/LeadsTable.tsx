@@ -47,23 +47,36 @@ export default function LeadsTable({ whatsappNumber }: { whatsappNumber: string 
   const [filter,  setFilter]  = useState('');
   const [page,    setPage]    = useState(1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   const fetchLeads = useCallback(async () => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(page), limit: '15' });
-    if (filter) params.set('type', filter);
-    const res = await fetch(`/api/leads?${params}`);
-    const data = await res.json();
-    setLeads(data.leads ?? []);
-    setTotal(data.total ?? 0);
-    setLoading(false);
+    setError('');
+    try {
+      const params = new URLSearchParams({ page: String(page), limit: '15' });
+      if (filter) params.set('type', filter);
+      const res = await fetch(`/api/leads?${params}`);
+      const data = await res.json().catch(() => ({ error: 'Unexpected server response' }));
+      if (!res.ok) throw new Error(data.error || 'Failed to load leads');
+      setLeads(data.leads ?? []);
+      setTotal(data.total ?? 0);
+    } catch {
+      setError('Leads could not be loaded. Check your connection and try again.');
+    } finally {
+      setLoading(false);
+    }
   }, [page, filter]);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
   async function markRead(id: string) {
-    await fetch(`/api/leads/${id}/read`, { method: 'PATCH' });
-    setLeads(prev => prev.map(l => l.id === id ? { ...l, is_read: true } : l));
+    try {
+      const res = await fetch(`/api/leads/${id}/read`, { method: 'PATCH' });
+      if (!res.ok) throw new Error();
+      setLeads(prev => prev.map(l => l.id === id ? { ...l, is_read: true } : l));
+    } catch {
+      setError('The lead could not be updated. Please try again.');
+    }
   }
 
   return (
@@ -91,6 +104,8 @@ export default function LeadsTable({ whatsappNumber }: { whatsappNumber: string 
       {/* Table */}
       {loading ? (
         <div className="p-8 text-center text-gray-400">Loading leads...</div>
+      ) : error ? (
+        <div className="p-8 text-center"><p className="text-sm text-red-600">{error}</p><button type="button" onClick={fetchLeads} className="mt-4 min-h-11 rounded-xl bg-navy-700 px-5 text-sm font-bold text-white">Try again</button></div>
       ) : leads.length === 0 ? (
         <div className="p-8 text-center text-gray-400">No leads found</div>
       ) : (

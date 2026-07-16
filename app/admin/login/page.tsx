@@ -22,9 +22,10 @@ export default function AdminLoginPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({ error: 'Unexpected server response' }));
       if (!res.ok) { toast.error(data.error ?? 'Invalid credentials'); return; }
-      router.push('/admin/dashboard');
+      router.replace('/admin/dashboard');
+      router.refresh();
     } catch {
       toast.error('Login failed. Please try again.');
     } finally {
