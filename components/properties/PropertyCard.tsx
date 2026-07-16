@@ -79,7 +79,7 @@ export default function PropertyCard({ property, priority = false }: { property:
           {property.bathrooms != null && <span className="flex items-center gap-1.5"><Bath className="h-4 w-4 text-navy-500" />{formatNumber(property.bathrooms, locale)} {dict.property.baths}</span>}
           <span className="flex items-center gap-1.5"><Maximize2 className="h-4 w-4 text-navy-500" />{formatNumber(property.size, locale)} {dict.property.sqm}</span>
         </div>
-        <div className="mt-3 flex min-w-0 items-center justify-between gap-2 text-xs sm:mt-4">
+        <div className="mt-3 flex min-w-0 items-center justify-between gap-2 pe-14 text-xs sm:mt-4 sm:pe-0">
           <span className="min-w-0 truncate font-mono text-gray-400">{dict.property.reference}: {property.propertyId}</span>
           <Link className="inline-flex min-h-11 shrink-0 items-center px-1 font-extrabold text-gold-700 hover:underline" href={`/properties/${property.slug}`}>{dict.property.details}</Link>
         </div>

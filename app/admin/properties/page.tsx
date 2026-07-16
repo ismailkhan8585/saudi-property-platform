@@ -18,7 +18,7 @@ export default async function AdminPropertiesPage() {
   const [properties, unreadLeads] = await Promise.all([getProperties(), getUnreadCount()]);
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary">
+    <div className="flex min-h-screen flex-col bg-surface-secondary md:flex-row" dir="ltr">
       <AdminSidebar unreadLeads={unreadLeads} />
       <div className="flex-1 min-w-0 p-4 sm:p-6 md:p-8 pb-24 md:pb-8 overflow-y-auto">
         <div className="max-w-6xl mx-auto">

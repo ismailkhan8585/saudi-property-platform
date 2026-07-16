@@ -27,7 +27,7 @@ export default function PropertyDetail({ property }: { property: Property }) {
   }
 
   return (
-    <div className="pb-28 lg:pb-0">
+    <div className="pb-[calc(var(--mobile-contact-height)+1rem)] lg:pb-0">
       <div className="bg-navy-800 py-4 text-sm text-white/60 sm:py-5">
         <div className="mx-auto max-w-7xl truncate px-4 sm:px-6"><Link href="/search" className="hover:text-white">{dict.nav.properties}</Link> / <span className="text-gold-300">{property.propertyId}</span></div>
       </div>

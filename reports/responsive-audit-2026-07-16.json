@@ -1,0 +1,204 @@
+[
+  {
+    "name": "home-ar-320x568.png",
+    "url": "/",
+    "locale": "ar",
+    "width": 320,
+    "height": 568,
+    "metrics": {
+      "innerWidth": 320,
+      "viewportWidth": 320,
+      "documentWidth": 320,
+      "bodyWidth": 320,
+      "horizontalOverflow": false,
+      "direction": "rtl",
+      "language": "ar"
+    }
+  },
+  {
+    "name": "home-en-360x800.png",
+    "url": "/",
+    "locale": "en",
+    "width": 360,
+    "height": 800,
+    "metrics": {
+      "innerWidth": 360,
+      "viewportWidth": 360,
+      "documentWidth": 360,
+      "bodyWidth": 360,
+      "horizontalOverflow": false,
+      "direction": "ltr",
+      "language": "en"
+    }
+  },
+  {
+    "name": "search-ar-375x812.png",
+    "url": "/search",
+    "locale": "ar",
+    "width": 375,
+    "height": 812,
+    "metrics": {
+      "innerWidth": 375,
+      "viewportWidth": 375,
+      "documentWidth": 375,
+      "bodyWidth": 375,
+      "horizontalOverflow": false,
+      "direction": "rtl",
+      "language": "ar"
+    }
+  },
+  {
+    "name": "home-ar-390x844.png",
+    "url": "/",
+    "locale": "ar",
+    "width": 390,
+    "height": 844,
+    "drawer": {
+      "exists": true,
+      "open": {
+        "x": 39,
+        "right": 390,
+        "width": 351,
+        "expanded": "true",
+        "bodyOverflow": "hidden",
+        "bodyLocked": true
+      },
+      "closedExpanded": "false",
+      "correctSide": true
+    },
+    "metrics": {
+      "innerWidth": 390,
+      "viewportWidth": 390,
+      "documentWidth": 390,
+      "bodyWidth": 390,
+      "horizontalOverflow": false,
+      "direction": "rtl",
+      "language": "ar"
+    }
+  },
+  {
+    "name": "home-en-390x844.png",
+    "url": "/",
+    "locale": "en",
+    "width": 390,
+    "height": 844,
+    "drawer": {
+      "exists": true,
+      "open": {
+        "x": 0,
+        "right": 351,
+        "width": 351,
+        "expanded": "true",
+        "bodyOverflow": "hidden",
+        "bodyLocked": true
+      },
+      "closedExpanded": "false",
+      "correctSide": true
+    },
+    "metrics": {
+      "innerWidth": 390,
+      "viewportWidth": 390,
+      "documentWidth": 390,
+      "bodyWidth": 390,
+      "horizontalOverflow": false,
+      "direction": "ltr",
+      "language": "en"
+    }
+  },
+  {
+    "name": "search-ar-390x844.png",
+    "url": "/search",
+    "locale": "ar",
+    "width": 390,
+    "height": 844,
+    "metrics": {
+      "innerWidth": 390,
+      "viewportWidth": 390,
+      "documentWidth": 390,
+      "bodyWidth": 390,
+      "horizontalOverflow": false,
+      "direction": "rtl",
+      "language": "ar"
+    }
+  },
+  {
+    "name": "search-en-414x896.png",
+    "url": "/search",
+    "locale": "en",
+    "width": 414,
+    "height": 896,
+    "metrics": {
+      "innerWidth": 414,
+      "viewportWidth": 414,
+      "documentWidth": 414,
+      "bodyWidth": 414,
+      "horizontalOverflow": false,
+      "direction": "ltr",
+      "language": "en"
+    }
+  },
+  {
+    "name": "home-en-480x900.png",
+    "url": "/",
+    "locale": "en",
+    "width": 480,
+    "height": 900,
+    "metrics": {
+      "innerWidth": 480,
+      "viewportWidth": 480,
+      "documentWidth": 480,
+      "bodyWidth": 480,
+      "horizontalOverflow": false,
+      "direction": "ltr",
+      "language": "en"
+    }
+  },
+  {
+    "name": "home-ar-768x1024.png",
+    "url": "/",
+    "locale": "ar",
+    "width": 768,
+    "height": 1024,
+    "metrics": {
+      "innerWidth": 768,
+      "viewportWidth": 768,
+      "documentWidth": 768,
+      "bodyWidth": 768,
+      "horizontalOverflow": false,
+      "direction": "rtl",
+      "language": "ar"
+    }
+  },
+  {
+    "name": "home-en-1024x1366.png",
+    "url": "/",
+    "locale": "en",
+    "width": 1024,
+    "height": 1366,
+    "metrics": {
+      "innerWidth": 1024,
+      "viewportWidth": 1024,
+      "documentWidth": 1024,
+      "bodyWidth": 1024,
+      "horizontalOverflow": false,
+      "direction": "ltr",
+      "language": "en"
+    }
+  },
+  {
+    "name": "admin-login-390x844.png",
+    "url": "/admin/login",
+    "locale": "en",
+    "width": 390,
+    "height": 844,
+    "metrics": {
+      "innerWidth": 390,
+      "viewportWidth": 390,
+      "documentWidth": 390,
+      "bodyWidth": 390,
+      "horizontalOverflow": false,
+      "direction": "ltr",
+      "language": "en"
+    }
+  }
+]

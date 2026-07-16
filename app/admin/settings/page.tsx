@@ -67,7 +67,7 @@ export default function SettingsPage() {
   const labelCls = 'text-sm font-600 text-gray-700 block mb-1.5';
 
   if (loading) return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-surface-secondary">
+    <div className="flex min-h-screen flex-col bg-surface-secondary md:flex-row" dir="ltr">
       <AdminSidebar />
       <div className="flex-1 p-4 sm:p-8 flex items-center justify-center">
         <div className="text-gray-400">Loading...</div>

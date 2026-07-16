@@ -37,7 +37,7 @@ export default function ContactAgentForm({ propertyId, propertyTitle, propertyRe
     }
   }
 
-  const fieldClass = 'mt-1 min-h-12 w-full rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-gold-500';
+  const fieldClass = 'mt-1 min-h-12 w-full rounded-xl border px-4 py-3 text-base outline-none focus:ring-2 focus:ring-gold-500';
   return (
     <div id="property-enquiry" className="scroll-mt-28 rounded-2xl border bg-white p-5">
       <h2 className="font-bold">{dict.property.contact}</h2>

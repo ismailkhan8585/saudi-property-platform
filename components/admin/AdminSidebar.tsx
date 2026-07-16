@@ -1,17 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Building2, LayoutDashboard, Home, Settings, LogOut, MessageSquare, ExternalLink } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Building2, ExternalLink, Home, LayoutDashboard, LogOut, Menu, MessageSquare, Settings } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 import { AGENT_NAME_EN } from '@/lib/constants';
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 
 const nav = [
-  { href: '/admin/dashboard',  label: 'Dashboard',   Icon: LayoutDashboard },
-  { href: '/admin/properties', label: 'Properties',  Icon: Home },
-  { href: '/admin/leads',      label: 'Leads',       Icon: MessageSquare },
-  { href: '/admin/settings',   label: 'Settings',    Icon: Settings },
+  { href: '/admin/dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+  { href: '/admin/properties', label: 'Properties', Icon: Home },
+  { href: '/admin/leads', label: 'Leads', Icon: MessageSquare },
+  { href: '/admin/settings', label: 'Settings', Icon: Settings },
 ];
 
 interface Props { unreadLeads?: number }
@@ -19,6 +21,7 @@ interface Props { unreadLeads?: number }
 export default function AdminSidebar({ unreadLeads = 0 }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
     await fetch('/api/admin/login', { method: 'DELETE' });
@@ -26,116 +29,37 @@ export default function AdminSidebar({ unreadLeads = 0 }: Props) {
     router.push('/admin/login');
   }
 
-  return (
-    <>
-      <header className="md:hidden w-full bg-navy-800 text-white px-4 py-3 flex items-center justify-between gap-3 border-b border-navy-600 sticky top-0 z-40">
-        <div className="flex items-center gap-2 min-w-0">
-          <div className="w-9 h-9 shrink-0 bg-gold-500 rounded-lg flex items-center justify-center">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-          <div className="min-w-0">
-            <div className="font-heading font-700 text-sm text-white truncate">{AGENT_NAME_EN}</div>
-            <div className="text-white/50 text-[11px]">Admin Panel</div>
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <Link href="/" target="_blank" aria-label="View website" className="w-10 h-10 flex items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white">
-            <ExternalLink className="w-4 h-4" />
-          </Link>
-          <button onClick={handleLogout} aria-label="Sign out" className="w-10 h-10 flex items-center justify-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white">
-            <LogOut className="w-4 h-4" />
-          </button>
-        </div>
-      </header>
-
-      <aside className="hidden md:flex w-60 bg-navy-800 min-h-screen flex-col text-white shrink-0">
-      {/* Logo */}
-      <div className="p-5 border-b border-navy-600">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-gold-500 rounded-lg flex items-center justify-center">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="font-heading font-700 text-sm text-white">{AGENT_NAME_EN}</div>
-            <div className="text-white/40 text-xs">Admin Panel</div>
-          </div>
-        </div>
-      </div>
-
-      {/* Nav */}
-      <nav className="flex-1 p-3 space-y-1">
-        {nav.map(({ href, label, Icon }) => {
-          const active = pathname.startsWith(href);
-          const badge = label === 'Leads' && unreadLeads > 0;
-          return (
-            <Link
-              key={href}
-              href={href}
-              className={cn(
-                'flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors',
-                active
-                  ? 'bg-gold-500 text-white'
-                  : 'text-white/60 hover:text-white hover:bg-white/10'
-              )}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              {label}
-              {badge && (
-                <span className="ml-auto bg-error text-white text-xs font-700 min-w-5 h-5 rounded-full flex items-center justify-center px-1">
-                  {unreadLeads}
-                </span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Logout */}
-      <div className="p-3 border-t border-navy-600">
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          Sign Out
-        </button>
-        <Link
-          href="/"
-          target="_blank"
-          className="flex items-center gap-3 px-4 py-2 rounded-xl text-sm text-white/40 hover:text-white/60 transition-colors mt-1"
-        >
-          <Home className="w-4 h-4" />
-          View Site
-        </Link>
-      </div>
-      </aside>
-
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-navy-800 border-t border-navy-600 pb-[env(safe-area-inset-bottom)]">
-        <div className="grid grid-cols-4 min-h-[4.5rem]">
-          {nav.map(({ href, label, Icon }) => {
-            const active = pathname.startsWith(href);
-            const badge = label === 'Leads' && unreadLeads > 0;
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={cn(
-                  'relative min-w-0 flex flex-col items-center justify-center gap-1 px-1 py-2 text-[10px] transition-colors',
-                  active ? 'text-gold-400' : 'text-white/60 hover:text-white'
-                )}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="truncate max-w-full">{label}</span>
-                {badge && (
-                  <span className="absolute top-1.5 left-1/2 ml-2 bg-error text-white text-[9px] font-700 min-w-4 h-4 rounded-full flex items-center justify-center px-1">
-                    {unreadLeads}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-    </>
+  const navigation = (mobile = false) => (
+    <nav className="flex-1 space-y-1 p-3" aria-label="Admin navigation">
+      {nav.map(({ href, label, Icon }) => {
+        const active = pathname.startsWith(href);
+        const item = <Link key={href} href={href} aria-current={active ? 'page' : undefined} className={cn('flex min-h-12 items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-colors', active ? 'bg-gold-500 text-navy-900' : 'text-white/65 hover:bg-white/10 hover:text-white')}><Icon className="h-4 w-4 shrink-0" /><span>{label}</span>{label === 'Leads' && unreadLeads > 0 && <span className="ms-auto flex h-5 min-w-5 items-center justify-center rounded-full bg-error px-1 text-xs font-bold text-white">{unreadLeads}</span>}</Link>;
+        return mobile ? <SheetClose asChild key={href}>{item}</SheetClose> : item;
+      })}
+    </nav>
   );
+
+  const footerActions = (
+    <div className="grid gap-1 border-t border-white/10 p-3">
+      <button onClick={handleLogout} className="flex min-h-11 w-full items-center gap-3 rounded-xl px-4 text-sm text-white/65 hover:bg-white/10 hover:text-white"><LogOut className="h-4 w-4" />Sign Out</button>
+      <Link href="/" target="_blank" className="flex min-h-11 items-center gap-3 rounded-xl px-4 text-sm text-white/45 hover:bg-white/10 hover:text-white"><ExternalLink className="h-4 w-4" />View Site</Link>
+    </div>
+  );
+
+  return <>
+    <header className="sticky top-0 z-40 flex min-h-16 w-full items-center justify-between gap-3 border-b border-white/10 bg-navy-800 px-4 text-white shadow-md md:hidden">
+      <div className="flex min-w-0 items-center gap-2"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gold-500 text-navy-900"><Building2 className="h-5 w-5" /></span><div className="min-w-0"><div className="truncate text-sm font-bold">{AGENT_NAME_EN}</div><div className="text-[11px] text-white/50">Admin Panel</div></div></div>
+      <button type="button" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="admin-mobile-navigation" aria-label="Open admin menu" className="grid h-11 w-11 place-items-center rounded-xl border border-white/15 bg-white/[.06] hover:bg-white/10"><Menu className="h-5 w-5" /></button>
+    </header>
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetContent id="admin-mobile-navigation" side="left" className="flex h-[100dvh] w-[min(90vw,22rem)] flex-col gap-0 border-white/10 bg-navy-800 p-0 text-white [&>button]:text-white" dir="ltr">
+        <SheetHeader className="border-b border-white/10 p-5 pe-16 text-left"><SheetTitle className="text-white">{AGENT_NAME_EN}</SheetTitle><SheetDescription className="text-white/50">Admin Panel</SheetDescription></SheetHeader>
+        {navigation(true)}{footerActions}
+      </SheetContent>
+    </Sheet>
+    <aside className="hidden min-h-screen w-60 shrink-0 flex-col bg-navy-800 text-white md:flex" dir="ltr">
+      <div className="flex items-center gap-2 border-b border-white/10 p-5"><span className="grid h-10 w-10 place-items-center rounded-xl bg-gold-500 text-navy-900"><Building2 className="h-5 w-5" /></span><div><div className="text-sm font-bold">{AGENT_NAME_EN}</div><div className="text-xs text-white/40">Admin Panel</div></div></div>
+      {navigation()}{footerActions}
+    </aside>
+  </>;
 }

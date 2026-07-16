@@ -26,7 +26,7 @@ export default function PropertyContactActions({ title, reference }: { title: st
         </div>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 gap-2 border-t border-surface-border bg-white/95 px-3 pb-[calc(.75rem+env(safe-area-inset-bottom))] pt-3 shadow-[0_-10px_30px_rgba(17,34,54,.12)] backdrop-blur lg:hidden" aria-label={locale === 'ar' ? 'خيارات التواصل' : 'Property contact options'}>
+      <nav className="fixed inset-x-0 bottom-0 z-40 grid min-h-[var(--mobile-contact-height)] grid-cols-3 gap-2 border-t border-surface-border bg-white/95 px-3 pb-[calc(.65rem+env(safe-area-inset-bottom))] pt-2 shadow-[0_-10px_30px_rgba(17,34,54,.12)] backdrop-blur lg:hidden" aria-label={locale === 'ar' ? 'خيارات التواصل' : 'Property contact options'}>
         {contact.businessPhone ? <a href={`tel:${contact.businessPhone}`} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl border border-navy-200 text-xs font-bold text-navy-800"><Phone className="h-4 w-4" />{dict.common.call}</a> : <Link href="/contact" className="flex min-h-12 items-center justify-center rounded-xl border text-xs font-bold">{dict.nav.contact}</Link>}
         <a href={whatsappHref} target={contact.whatsappNumber ? '_blank' : undefined} rel={contact.whatsappNumber ? 'noopener noreferrer' : undefined} className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl bg-emerald-600 text-xs font-bold text-white"><MessageCircle className="h-4 w-4" />{dict.common.whatsapp}</a>
         <a href="#property-enquiry" className="flex min-h-12 flex-col items-center justify-center gap-1 rounded-xl bg-navy-800 text-xs font-bold text-white"><Mail className="h-4 w-4" />{dict.property.send}</a>

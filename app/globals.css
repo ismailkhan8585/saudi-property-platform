@@ -29,6 +29,12 @@
     --chart-4: 0 84% 60%;
     --chart-5: 200 60% 50%;
     --radius: 0.5rem;
+    --page-gutter: clamp(1rem, 4vw, 1.5rem);
+    --mobile-header-height: 4rem;
+    --mobile-contact-height: calc(4.5rem + env(safe-area-inset-bottom));
+    --touch-target: 2.75rem;
+    --layer-header: 50;
+    --layer-overlay: 60;
   }
 
   * {
@@ -40,6 +46,11 @@
     overflow-x: clip;
   }
 
+  html {
+    min-width: 320px;
+    scroll-padding-top: calc(var(--mobile-header-height) + 1rem);
+  }
+
   body {
     @apply bg-surface-secondary text-foreground font-body antialiased;
     font-family: "Segoe UI", Tahoma, Arial, sans-serif;
@@ -47,6 +58,18 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-heading;
+  }
+
+  img, svg, video, canvas {
+    max-width: 100%;
+  }
+
+  button, a, input, select, textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  input, select, textarea {
+    max-width: 100%;
   }
 }
 
@@ -111,7 +134,14 @@
 }
 
 html[lang="en"] body { font-family: "Segoe UI", Arial, sans-serif; }
+:where([dir="rtl"]) { text-align: start; }
 :focus-visible { outline: 3px solid rgb(201 168 76); outline-offset: 3px; }
+
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]), select, textarea {
+    font-size: 16px !important;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
